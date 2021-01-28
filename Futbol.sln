@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.SeasonsAPI", "Futbol.SeasonsAPI\Futbol.SeasonsAPI.csproj", "{74E83B3B-A8C7-4E4D-8128-5F98BD3688FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataLayer", "DataLayer", "{892F2B8E-6F36-4404-A93E-E8EEB6C88BB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.DataRepository", "Futbol.Seasons.DataRepository\Futbol.Seasons.DataRepository.csproj", "{D7D5227E-77AA-4661-82C1-3458455DFA2E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{72DCF99D-F29A-4DA6-9075-D47ED8886464}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.SeasonsAPI.Tests", "Tests\Futbol.SeasonsAPI.Tests\Futbol.SeasonsAPI.Tests.csproj", "{D0212AC9-A4F7-4A2F-84CF-229153DDB04B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{CE847633-F7CD-4E8C-A619-F37923E70232}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.Services.Tests", "Tests\Futbol.Seasons.Services.Tests\Futbol.Seasons.Services.Tests.csproj", "{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.Services", "Backend\Futbol.Seasons.Services\Futbol.Seasons.Services.csproj", "{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Futbol.Seasons.BusinessEntities", "Backend\Futbol.Seasons.BusinessEntities\Futbol.Seasons.BusinessEntities.csproj", "{689832F5-F191-47CC-A046-571E85F8D6D4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74E83B3B-A8C7-4E4D-8128-5F98BD3688FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74E83B3B-A8C7-4E4D-8128-5F98BD3688FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74E83B3B-A8C7-4E4D-8128-5F98BD3688FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74E83B3B-A8C7-4E4D-8128-5F98BD3688FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D5227E-77AA-4661-82C1-3458455DFA2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D5227E-77AA-4661-82C1-3458455DFA2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D5227E-77AA-4661-82C1-3458455DFA2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D5227E-77AA-4661-82C1-3458455DFA2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0212AC9-A4F7-4A2F-84CF-229153DDB04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0212AC9-A4F7-4A2F-84CF-229153DDB04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0212AC9-A4F7-4A2F-84CF-229153DDB04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0212AC9-A4F7-4A2F-84CF-229153DDB04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}.Release|Any CPU.Build.0 = Release|Any CPU
+		{689832F5-F191-47CC-A046-571E85F8D6D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{689832F5-F191-47CC-A046-571E85F8D6D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{689832F5-F191-47CC-A046-571E85F8D6D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{689832F5-F191-47CC-A046-571E85F8D6D4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D7D5227E-77AA-4661-82C1-3458455DFA2E} = {892F2B8E-6F36-4404-A93E-E8EEB6C88BB7}
+		{D0212AC9-A4F7-4A2F-84CF-229153DDB04B} = {72DCF99D-F29A-4DA6-9075-D47ED8886464}
+		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851} = {72DCF99D-F29A-4DA6-9075-D47ED8886464}
+		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786} = {CE847633-F7CD-4E8C-A619-F37923E70232}
+		{689832F5-F191-47CC-A046-571E85F8D6D4} = {CE847633-F7CD-4E8C-A619-F37923E70232}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CCBFB91D-B5DB-4E66-BB44-2EEAB64905F3}
+	EndGlobalSection
+EndGlobal
