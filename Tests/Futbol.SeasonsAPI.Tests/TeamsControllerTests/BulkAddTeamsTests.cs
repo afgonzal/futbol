@@ -23,7 +23,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
     {
         private Mock<ITeamsService> _service;
         private IMapper _mapper;
-        private Mock<ILogger<TeamsControllers>> _logger;
+        private Mock<ILogger<TeamsController>> _logger;
 
         [SetUp]
         public void SetUp()
@@ -34,13 +34,13 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
                 cfg.AddProfile(new ModelMappingProfile());
             });
             _mapper = mockMapper.CreateMapper();
-            _logger = new Mock<ILogger<TeamsControllers>>();
+            _logger = new Mock<ILogger<TeamsController>>();
         }
 
         [Test]
         public async Task Ok_Success()
         {
-            var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
+            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
             var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);
@@ -56,7 +56,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         public async Task ServiceFail_Return500()
         {
             _service.Setup(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
-            var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
+            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
             var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);

@@ -7,9 +7,23 @@ namespace Futbol.SeasonsAPI.Models
     {
         public ModelMappingProfile()
         {
+            #region Team
             CreateMap<TeamAddRequest, Team>();
 
             CreateMap<Team, TeamModel>();
+            #endregion
+            #region Match
+
+            CreateMap<MatchAddRequest, Match>()
+                .ForMember(dest => dest.Year,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (short) context.Items["year"]))
+                .ForMember(dest => dest.Season,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (byte) context.Items["season"]))
+                .ForMember(dest => dest.Round,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (byte) context.Items["round"]));
+
+            #endregion
+
         }
     }
 }

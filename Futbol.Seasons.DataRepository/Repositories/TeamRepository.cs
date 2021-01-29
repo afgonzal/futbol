@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Futbol.Seasons.DataRepository.DataEntities;
 using Microsoft.Extensions.Configuration;
 

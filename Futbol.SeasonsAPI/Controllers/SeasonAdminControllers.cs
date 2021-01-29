@@ -12,9 +12,9 @@ namespace Futbol.SeasonsAPI.Controllers
     public class SeasonAdminControllers : ControllerBase
     {
         private readonly ITeamsService _teamsService;
-        private readonly ILogger<TeamsControllers> _logger;
+        private readonly ILogger<TeamsController> _logger;
 
-        public SeasonAdminControllers(ITeamsService teamsService, ILogger<TeamsControllers> logger)
+        public SeasonAdminControllers(ITeamsService teamsService, ILogger<TeamsController> logger)
         {
             _teamsService = teamsService;
             _logger = logger;

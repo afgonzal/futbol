@@ -8,7 +8,7 @@ using Futbol.Seasons.DataRepository.Repositories;
 using Moq;
 using NUnit.Framework;
 
-namespace Futbol.Seasons.Services.Tests.TeamServiceTests
+namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
     public class GetYearTeamsTests

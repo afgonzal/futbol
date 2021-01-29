@@ -16,13 +16,13 @@ namespace Futbol.SeasonsAPI.Controllers
 {
     [Route("api/teams")]
     [ApiController]
-    public class TeamsControllers : ControllerBase
+    public class TeamsController : ControllerBase
     {
         private readonly ITeamsService _teamsService;
         private readonly IMapper _mapper;
-        private readonly ILogger<TeamsControllers> _logger;
+        private readonly ILogger<TeamsController> _logger;
 
-        public TeamsControllers(ITeamsService teamsService, IMapper mapper, ILogger<TeamsControllers> logger)
+        public TeamsController(ITeamsService teamsService, IMapper mapper, ILogger<TeamsController> logger)
         {
             _teamsService = teamsService;
             _mapper = mapper;
