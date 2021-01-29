@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -17,7 +19,7 @@ using NUnit.Framework;
 namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
 {
     [TestFixture]
-    public class AddTeamTests
+    public class BulkAddTeamsTests
     {
         private Mock<ITeamsService> _service;
         private IMapper _mapper;
@@ -39,13 +41,13 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         public async Task Ok_Success()
         {
             var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
-            var result = await controller.Add(MockedTeam());
+            var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
             Assert.IsInstanceOf<OkResult>(result);
 
-            _service.Verify(x => x.AddTeamAsync(It.IsAny<Team>()), Times.Once);
+            _service.Verify(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
         }
@@ -53,9 +55,9 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         [Test]
         public async Task ServiceFail_Return500()
         {
-            _service.Setup(x => x.AddTeamAsync(It.IsAny<Team>())).ThrowsAsync(new DataException());
+            _service.Setup(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
             var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
-            var result = await controller.Add(MockedTeam());
+            var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
@@ -64,21 +66,22 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.AddTeamAsync(It.IsAny<Team>()), Times.Once);
+            _service.Verify(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
         }
 
-        public TeamAddRequest MockedTeam()
+        private IEnumerable<TeamAddRequest> MockedTeams()
         {
-            return new TeamAddRequest
+            return Enumerable.Range(1, 5).Select(tid => new TeamAddRequest
             {
-                Year = 2020,
-                Name = "DC United",
+                Id = tid,
+                Name = $"team{tid}",
                 ConferenceId = 0,
-                Years = new short[] {2020, 2021},
-                Delegates = new string[] {"Favio", "Ale"}
-            };
+                Delegates = new string[] { "Favio", "Ale" },
+                Year = 2020,
+                Years = new short[] { 2020, 2021 }
+            });
         }
     }
 }

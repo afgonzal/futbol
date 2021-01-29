@@ -13,7 +13,7 @@ namespace Futbol.Seasons.Services
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.TeamName));
 
             CreateMap<Team, DataRepository.DataEntities.Team>()
-                .ForMember(dest => dest.YearTeamId, opt => opt.MapFrom(src => $"{src.Year}#{src.Id}"))
+                .ForMember(dest => dest.TeamId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Name));
         }
     }

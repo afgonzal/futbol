@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
@@ -9,7 +11,11 @@ namespace Futbol.Seasons.Services
 {
     public interface ITeamsService
     {
-        public Task AddTeamAsync(Team newTeam);
+        Task AddTeamAsync(Team newTeam);
+        Task<IEnumerable<Team>> GetYearTeamsAsync(short year);
+        Task DeleteAllTeamsFromSeasonAsync(short year);
+
+        Task BulkAddTeams(IEnumerable<Team> newTeams);
     }
 
     public class TeamsService : ITeamsService
@@ -25,6 +31,23 @@ namespace Futbol.Seasons.Services
         public async Task AddTeamAsync(Team newTeam)
         {
             await _teamRepository.AddAsync(_mapper.Map<DataRepository.DataEntities.Team>(newTeam));
+        }
+
+        public async Task<IEnumerable<Team>> GetYearTeamsAsync(short year)
+        {
+            var teams = await _teamRepository.GetYearTeamsAsync(year);
+            return _mapper.Map<IEnumerable<Team>>(teams);
+        }
+
+        public async Task DeleteAllTeamsFromSeasonAsync(short year)
+        {
+            var teams = await _teamRepository.GetYearTeamsAsync(year);
+            await _teamRepository.DeleteTeamsAsync(teams);
+        }
+
+        public Task BulkAddTeams(IEnumerable<Team> newTeams)
+        {
+            return _teamRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.Team>>(newTeams));
         }
     }
 }

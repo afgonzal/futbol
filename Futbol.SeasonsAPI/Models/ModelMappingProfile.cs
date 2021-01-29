@@ -8,6 +8,8 @@ namespace Futbol.SeasonsAPI.Models
         public ModelMappingProfile()
         {
             CreateMap<TeamAddRequest, Team>();
+
+            CreateMap<Team, TeamModel>();
         }
     }
 }

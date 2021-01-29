@@ -10,10 +10,11 @@ using NUnit.Framework;
 namespace Futbol.Seasons.Services.Tests.TeamServiceTests
 {
     [TestFixture]
-    public class AddTeamTests
+    public class DeleteAllTeamsFromSeason
     {
         private Mock<ITeamRepository> _repository;
         private IMapper _mapper;
+        private const short Year = 2020;
 
         [SetUp]
         public void SetUp()
@@ -30,28 +31,19 @@ namespace Futbol.Seasons.Services.Tests.TeamServiceTests
         public async Task Ok_Success()
         {
             var service = new TeamsService(_repository.Object, _mapper);
-            await service.AddTeamAsync(MockedTeam());
-            _repository.Verify(x => x.AddAsync(It.IsAny<Team>()),Times.Once);
+            await service.DeleteAllTeamsFromSeasonAsync(Year);
+            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>()),Times.Once);
         }
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.AddAsync(It.IsAny<Team>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
 
             var service = new TeamsService(_repository.Object, _mapper);
-            Assert.ThrowsAsync<DataException>(async () => await service.AddTeamAsync(MockedTeam()));
+            Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllTeamsFromSeasonAsync(Year));
 
-            _repository.Verify(x => x.AddAsync(It.IsAny<Team>()), Times.Once);
-        }
-
-        private BusinessEntities.Team MockedTeam()
-        {
-            return new BusinessEntities.Team
-            {
-                Id = 3, Name = "DC United", ConferenceId = 0, Delegates = new string[] {"Favio", "Ale"}, Year = 2020,
-                Years = new short[] {2020, 2021}
-            };
+            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Futbol.SeasonsAPI.Models
 
     public class TeamAddRequest : TeamModel
     {
+        [Required]
         public IEnumerable<short> Years { get; set; }
 
         public IEnumerable<string> Delegates { get; set; }

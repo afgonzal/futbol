@@ -88,7 +88,6 @@ namespace Futbol.Seasons.DataRepository
 
         public virtual Task AddAsync(TEntity entity)
         {
-
             return _context.SaveAsync(entity);
         }
 
@@ -114,9 +113,13 @@ namespace Futbol.Seasons.DataRepository
             var result = _context.QueryAsync<TEntity>(hashKey, QueryOperator.Between, new object[] { sortKeyFrom, sortKeyTo });
 
             return result.GetRemainingAsync();
-
         }
 
-
+        public Task BatchAddAsync(IEnumerable<TEntity> entities)
+        {
+            var batch = _context.CreateBatchWrite<TEntity>();
+            batch.AddPutItems(entities);
+            return batch.ExecuteAsync();
+        }
     }
 }

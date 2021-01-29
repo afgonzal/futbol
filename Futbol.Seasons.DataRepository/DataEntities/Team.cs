@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Amazon.DynamoDBv2.DataModel;
 
 namespace Futbol.Seasons.DataRepository.DataEntities
@@ -10,12 +8,10 @@ namespace Futbol.Seasons.DataRepository.DataEntities
     public class Team
     {
         [DynamoDBHashKey]
-        public string YearTeamId { get; set; }
+        public short Year { get; set; }
 
-        [DynamoDBIgnore]
-        public short Year => YearTeamId.ParseCompositeKey<short>(0, false).GetValueOrDefault();
-
-        [DynamoDBIgnore] public int TeamId => YearTeamId.ParseCompositeKey<int>(1, false).GetValueOrDefault();
+        [DynamoDBRangeKey]
+        public int TeamId { get; set; }
 
         [DynamoDBProperty]
         public string TeamName { get; set; }
@@ -24,7 +20,7 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public byte ConferenceId { get; set; }
 
         [DynamoDBProperty]
-        public List<int> Years { get; set; }
+        public List<short> Years { get; set; }
 
         [DynamoDBProperty]
         public List<string> Delegates { get; set; }

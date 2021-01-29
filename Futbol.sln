@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.Services.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.Services", "Backend\Futbol.Seasons.Services\Futbol.Seasons.Services.csproj", "{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Futbol.Seasons.BusinessEntities", "Backend\Futbol.Seasons.BusinessEntities\Futbol.Seasons.BusinessEntities.csproj", "{689832F5-F191-47CC-A046-571E85F8D6D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.BusinessEntities", "Backend\Futbol.Seasons.BusinessEntities\Futbol.Seasons.BusinessEntities.csproj", "{689832F5-F191-47CC-A046-571E85F8D6D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
