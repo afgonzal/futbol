@@ -35,7 +35,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 
             var service = new TeamsService(_repository.Object, _mapper);
             await service.DeleteAllTeamsFromSeasonAsync(Year);
-            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>()),Times.Once);
+            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<TeamProfile>>()),Times.Once);
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
@@ -43,12 +43,12 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         public void RepositoryError_ThrowException()
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams().ToList());
-            _repository.Setup(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<TeamProfile>>())).ThrowsAsync(new DataException());
 
             var service = new TeamsService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllTeamsFromSeasonAsync(Year));
 
-            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
+            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Once);
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
@@ -60,13 +60,13 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             var service = new TeamsService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllTeamsFromSeasonAsync(Year));
 
-            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Never);
+            _repository.Verify(x => x.DeleteTeamsAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Never);
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
-        private IEnumerable<Team> MockedTeams()
+        private IEnumerable<TeamProfile> MockedTeams()
         {
-            return Enumerable.Range(1, 5).Select(tId => new Team
+            return Enumerable.Range(1, 5).Select(tId => new TeamProfile
             {
                 Year = Year,
                 TeamId = tId,

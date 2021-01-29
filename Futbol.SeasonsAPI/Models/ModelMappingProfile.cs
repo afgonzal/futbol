@@ -8,7 +8,9 @@ namespace Futbol.SeasonsAPI.Models
         public ModelMappingProfile()
         {
             #region Team
-            CreateMap<TeamAddRequest, Team>();
+
+            CreateMap<TeamAddRequest, Team>()
+                .ForMember(dest => dest.Abbreviation, opt => opt.MapFrom(src => src.Abbr));
 
             CreateMap<Team, TeamModel>();
             #endregion

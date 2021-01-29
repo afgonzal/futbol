@@ -51,9 +51,9 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
-        private IEnumerable<Team> MockedTeams(short year)
+        private IEnumerable<TeamProfile> MockedTeams(short year)
         {
-            return Enumerable.Range(1,5).Select(tId => new Team
+            return Enumerable.Range(1,5).Select(tId => new TeamProfile
             {
                 Year = year,
                 TeamId = tId,

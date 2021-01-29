@@ -5,13 +5,20 @@ namespace Futbol.Seasons.DataRepository.DataEntities
 {
     [DynamoDBTable("Teams")]
 
-    public class Team
+    public class TeamProfile
     {
         [DynamoDBHashKey]
         public short Year { get; set; }
 
         [DynamoDBRangeKey]
-        public int TeamId { get; set; }
+        internal string Sk { get; set; }
+
+        [DynamoDBIgnore]
+        public int TeamId
+        {
+            get => Sk.ParseCompositeKey<int>(1, false).GetValueOrDefault();
+            set => Sk = $"Profile#{value}";
+        }
 
         [DynamoDBProperty]
         public string TeamName { get; set; }
@@ -24,6 +31,9 @@ namespace Futbol.Seasons.DataRepository.DataEntities
 
         [DynamoDBProperty]
         public List<string> Delegates { get; set; }
+
+        [DynamoDBProperty]
+        public string Abbreviation { get; set; }
 
     }
 }

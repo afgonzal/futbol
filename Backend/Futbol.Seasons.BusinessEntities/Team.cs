@@ -14,5 +14,7 @@ namespace Futbol.Seasons.BusinessEntities
         public IEnumerable<short> Years { get; set; }
 
         public IEnumerable<string> Delegates { get; set; }
+
+        public string Abbreviation { get; set; }
     }
 }

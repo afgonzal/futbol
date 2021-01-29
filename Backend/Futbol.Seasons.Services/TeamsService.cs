@@ -28,7 +28,7 @@ namespace Futbol.Seasons.Services
         }
         public async Task AddTeamAsync(Team newTeam)
         {
-            await _teamRepository.AddAsync(_mapper.Map<DataRepository.DataEntities.Team>(newTeam));
+            await _teamRepository.AddAsync(_mapper.Map<DataRepository.DataEntities.TeamProfile>(newTeam));
         }
 
         public async Task<IEnumerable<Team>> GetYearTeamsAsync(short year)
@@ -45,7 +45,7 @@ namespace Futbol.Seasons.Services
 
         public Task BulkAddTeams(IEnumerable<Team> newTeams)
         {
-            return _teamRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.Team>>(newTeams));
+            return _teamRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.TeamProfile>>(newTeams));
         }
     }
 }

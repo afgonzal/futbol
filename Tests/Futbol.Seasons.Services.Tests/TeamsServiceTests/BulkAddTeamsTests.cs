@@ -32,18 +32,18 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             var service = new TeamsService(_repository.Object, _mapper);
             await service.BulkAddTeams(MockedTeams());
-            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<Team>>()),Times.Once);
+            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<TeamProfile>>()),Times.Once);
         }
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.BatchAddAsync(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.BatchAddAsync(It.IsAny<IEnumerable<TeamProfile>>())).ThrowsAsync(new DataException());
 
             var service = new TeamsService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.BulkAddTeams(MockedTeams()));
 
-            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
+            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Once);
         }
 
         private IEnumerable<BusinessEntities.Team> MockedTeams()
