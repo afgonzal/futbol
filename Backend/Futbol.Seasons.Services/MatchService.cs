@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
@@ -11,14 +12,14 @@ namespace Futbol.Seasons.Services
         Task AddMatch(Match newMatch);
         Task DeleteAllMatchesFromSeasonRoundAsync(short year, byte season, byte round);
         Task<IEnumerable<Match>> GetSeasonRoundMatchesAsync(short year, byte season, byte round);
-        Task BulkAddMatches(IEnumerable<Match> newMatches);
+        Task BulkAddMatches(IList<Match> newMatches);
     }
 
-    public class MatchService : IMatchesService
+    public class MatchesService : IMatchesService
     {
         private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
-        public MatchService(IMatchRepository matchRepository, IMapper mapper)
+        public MatchesService(IMatchRepository matchRepository, IMapper mapper)
         {
             _matchRepository = matchRepository;
             _mapper = mapper;
@@ -41,8 +42,14 @@ namespace Futbol.Seasons.Services
             return _mapper.Map<IEnumerable<Match>>(matches);
         }
 
-        public Task BulkAddMatches(IEnumerable<Match> newMatches)
+        public Task BulkAddMatches(IList<Match> newMatches)
         {
+            //numerate MatchId
+            for (int matchId = 0; matchId < newMatches.Count(); matchId++)
+            {
+                newMatches[matchId].MatchId = matchId + 1;
+            }
+
             return _matchRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.Match>>(newMatches));
         }
     }

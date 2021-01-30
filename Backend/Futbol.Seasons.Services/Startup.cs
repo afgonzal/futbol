@@ -12,6 +12,8 @@ namespace Futbol.Seasons.Services
         {
             DataRepository.Startup.ConfigureServices(services, config);
             services.AddScoped<ITeamsService, TeamsService>();
+            services.AddScoped<IMatchesService, MatchesService>();
+
         }
     }
 }

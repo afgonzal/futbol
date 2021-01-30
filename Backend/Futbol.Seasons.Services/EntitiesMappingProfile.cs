@@ -24,7 +24,8 @@ namespace Futbol.Seasons.Services
             CreateMap<DataRepository.DataEntities.Match, Match>();
 
 
-            CreateMap<Match, DataRepository.DataEntities.Match>();
+            CreateMap<Match, DataRepository.DataEntities.Match>()
+                .ForMember(dest => dest.YearSeasonRound, opt => opt.MapFrom(src => $"{src.Year}#{src.Season}#{src.Round}"));
             #endregion
         }
     }

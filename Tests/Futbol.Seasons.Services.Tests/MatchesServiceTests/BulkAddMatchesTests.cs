@@ -29,7 +29,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new MatchService(_repository.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _mapper);
             await service.BulkAddMatches(MockedMatches());
             _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()),Times.Once);
         }
@@ -39,7 +39,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>())).ThrowsAsync(new DataException());
 
-            var service = new MatchService(_repository.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.BulkAddMatches(MockedMatches()));
 
             _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()), Times.Once);

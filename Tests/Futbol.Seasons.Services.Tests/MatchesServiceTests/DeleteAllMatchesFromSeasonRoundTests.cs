@@ -35,7 +35,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedMatches().ToList());
 
-            var service = new MatchService(_repository.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _mapper);
             await service.DeleteAllMatchesFromSeasonRoundAsync(Year, Season, Round);
             _repository.Verify(x => x.DeleteMatchesAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()),Times.Once);
             _repository.Verify(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()),
@@ -49,7 +49,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
                 .ReturnsAsync(MockedMatches().ToList());
             _repository.Setup(x => x.DeleteMatchesAsync(It.IsAny<IEnumerable< DataRepository.DataEntities.Match>> ())).ThrowsAsync(new DataException());
 
-            var service = new MatchService(_repository.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllMatchesFromSeasonRoundAsync(Year, Season, Round));
 
             _repository.Verify(x => x.DeleteMatchesAsync(It.IsAny<IEnumerable< DataRepository.DataEntities.Match>> ()), Times.Once);
@@ -63,7 +63,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
             
-            var service = new MatchService(_repository.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllMatchesFromSeasonRoundAsync(Year, Season, Round));
 
             _repository.Verify(x => x.DeleteMatchesAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()), Times.Never);
