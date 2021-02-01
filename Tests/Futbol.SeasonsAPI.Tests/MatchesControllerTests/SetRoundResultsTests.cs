@@ -17,7 +17,7 @@ using NUnit.Framework;
 namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
 {
     [TestFixture]
-    public class BulkAddMatchesTests
+    public class SetRoundResultsTests
     {
         private Mock<IMatchesService> _service;
         private IMapper _mapper;
@@ -44,14 +44,14 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
         {
             _teamsService.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams());
             var controller = new MatchesController(_service.Object, _teamsService.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAddFixture(Year, Season, MockedMatches().ToList());
+            var result = await controller.SetRoundResults(Year, Season,Round, MockedMatches().ToList());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
             Assert.IsInstanceOf<OkResult>(result);
 
-            _service.Verify(x => x.BulkAddMatches(It.IsAny<IList<Seasons.BusinessEntities.Match >>()), Times.Exactly(MockedMatches().Count()));
-            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Exactly(MockedMatches().Count()));
+            _service.Verify(x => x.SetRoundResults(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>(), It.IsAny<IList<Seasons.BusinessEntities.Match >>()), Times.Once);
+            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _teamsService.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
@@ -60,10 +60,10 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
         public async Task WrongTeam_Return500()
         {
             var wrongTeams = MockedMatches().ToList();
-            wrongTeams[0][0].HomeTeamAbbr = "wrong";
+            wrongTeams[0].HomeTeamAbbr = "wrong";
             _teamsService.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams());
             var controller = new MatchesController(_service.Object, _teamsService.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAddFixture(Year, Season, wrongTeams);
+            var result = await controller.SetRoundResults(Year, Season,Round, wrongTeams);
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
@@ -72,7 +72,7 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.BulkAddMatches(It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Never);
+            _service.Verify(x => x.SetRoundResults(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>(), It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _teamsService.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
@@ -83,7 +83,7 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
         {
             _teamsService.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ThrowsAsync(new DataException());
             var controller = new MatchesController(_service.Object, _teamsService.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAddFixture(Year, Season, MockedMatches().ToList());
+            var result = await controller.SetRoundResults(Year, Season, Round,MockedMatches().ToList());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
@@ -92,7 +92,7 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.BulkAddMatches(It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Never);
+            _service.Verify(x => x.SetRoundResults(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>(),It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _teamsService.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
@@ -102,9 +102,9 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
         public async Task ServiceFail_Return500()
         {
             _teamsService.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams());
-            _service.Setup(x => x.BulkAddMatches(It.IsAny<IList<Seasons.BusinessEntities.Match>>())).ThrowsAsync(new DataException());
+            _service.Setup(x => x.SetRoundResults(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>(), It.IsAny<IList<Seasons.BusinessEntities.Match>>())).ThrowsAsync(new DataException());
             var controller = new MatchesController(_service.Object, _teamsService.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAddFixture(Year, Season, MockedMatches().ToList());
+            var result = await controller.SetRoundResults(Year, Season,Round, MockedMatches().ToList());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
@@ -113,20 +113,21 @@ namespace Futbol.SeasonsAPI.Tests.MatchesControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.BulkAddMatches(It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Once);
+            _service.Verify(x => x.SetRoundResults(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>(), It.IsAny<IList<Seasons.BusinessEntities.Match>>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _teamsService.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
-        private IEnumerable<IList<MatchAddRequest>> MockedMatches()
+        private IEnumerable<MatchResultRequest> MockedMatches()
         {
-            return Enumerable.Range(1, 2).Select(round =>
-                Enumerable.Range(1, 5).Select(tid => new MatchAddRequest
-                {
+            return Enumerable.Range(1, 5).Select(tid => new MatchResultRequest
+            {
                     HomeTeamAbbr = $"team{tid}",
-                    AwayTeamAbbr = $"team{tid + 5}"
-                }).ToList());
+                    AwayTeamAbbr = $"team{tid + 5}",
+                    HomeScore = (byte)tid,
+                    AwayScore = (byte)(tid+2)
+                });
         }
 
         private IEnumerable<Team> MockedTeams()

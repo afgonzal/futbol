@@ -9,7 +9,6 @@ using Futbol.SeasonsAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Futbol.SeasonsAPI.Controllers
 {
@@ -28,19 +27,38 @@ namespace Futbol.SeasonsAPI.Controllers
             _logger = logger;
         }
 
+        [HttpGet("{round:int}")]
+        public async Task<IActionResult> GetSeasonRoundMatchesAsync([FromRoute] short year, [FromRoute] byte season,
+            [FromRoute] byte round)
+        {
+            try
+            {
+                var matches = await _matchesService.GetSeasonRoundMatchesAsync(year, season, round);
+                return Ok(_mapper.Map<IEnumerable<MatchModel>>(matches));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting teams for {year}:{season}:{round}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting round matches.");
+            }
+        }
+
         [HttpPost("batchFixture")]
         public async Task<IActionResult> BulkAddFixture([FromRoute] short year, [FromRoute] byte season,
             [FromBody] IList<IList<MatchAddRequest>> newMatches)
         {
             try
             {
-                var teams = (await _teamsService.GetYearTeamsAsync(year)).ToDictionary(team => team.Abbreviation.ToLowerInvariant(), team => team.Id);
+                var teams = (await _teamsService.GetYearTeamsAsync(year)).ToDictionary(team => team.Abbreviation.ToLowerInvariant(), team => team);
                 foreach (var match in newMatches.SelectMany(m => m.Select(match => match)))
                 {
                     if (!teams.ContainsKey(match.HomeTeamAbbr.ToLowerInvariant()) || !teams.ContainsKey(match.AwayTeamAbbr.ToLowerInvariant()))
                         throw new ArgumentException($"Teams not found for match {match.HomeTeamAbbr}-{match.AwayTeamAbbr}.");
-                    match.HomeTeamId = teams[match.HomeTeamAbbr.ToLowerInvariant()];
-                    match.AwayTeamId = teams[match.AwayTeamAbbr.ToLowerInvariant()];
+                    match.HomeTeamId = teams[match.HomeTeamAbbr.ToLowerInvariant()].Id;
+                    match.AwayTeamId = teams[match.AwayTeamAbbr.ToLowerInvariant()].Id;
+                    match.HomeTeamName = teams[match.HomeTeamAbbr.ToLowerInvariant()].Name;
+                    match.AwayTeamName = teams[match.AwayTeamAbbr.ToLowerInvariant()].Name;
+
                 }
             }
             catch (Exception ex)
@@ -74,5 +92,49 @@ namespace Futbol.SeasonsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error adding matches.");
             }
         }
+
+        [HttpPost("{round:int}")]
+        public async Task<IActionResult> SetRoundResults([FromRoute] short year, [FromRoute] byte season,[FromRoute]byte round,
+           [FromBody] IList<MatchResultRequest> matchesResults)
+        {
+            try
+            {
+                var teams = (await _teamsService.GetYearTeamsAsync(year)).ToDictionary(team => team.Abbreviation.ToLowerInvariant(), team => team);
+                foreach (var match in matchesResults)
+                {
+                    if (!teams.ContainsKey(match.HomeTeamAbbr.ToLowerInvariant()) || !teams.ContainsKey(match.AwayTeamAbbr.ToLowerInvariant()))
+                        throw new ArgumentException($"Teams not found for match {match.HomeTeamAbbr}-{match.AwayTeamAbbr}.");
+                    match.HomeTeamId = teams[match.HomeTeamAbbr.ToLowerInvariant()].Id;
+                    match.AwayTeamId = teams[match.AwayTeamAbbr.ToLowerInvariant()].Id;
+                    match.HomeTeamName = teams[match.HomeTeamAbbr.ToLowerInvariant()].Name;
+                    match.AwayTeamName = teams[match.AwayTeamAbbr.ToLowerInvariant()].Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error matching teams.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error matching teams.");
+            }
+            try
+            {
+                    await _matchesService.SetRoundResults(year, season, round,_mapper.Map<IList<Match>>(matchesResults,
+
+                        opt =>
+                        {
+                            opt.Items["year"] = year;
+                            opt.Items["season"] = season;
+                            opt.Items["round"] = round;
+                        }));
+                    _logger.LogDebug($"{matchesResults.Count} matches results set for {year}:{season}:{round}.");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error bulk adding matches.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error adding matches.");
+            }
+        }
+
     }
 }

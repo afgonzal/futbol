@@ -21,7 +21,7 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public byte Round => YearSeasonRound.ParseCompositeKey<byte>(2, false).GetValueOrDefault();
 
         [DynamoDBRangeKey]
-        public int MatchId { get; set; }
+        public byte MatchId { get; set; }
 
         [DynamoDBProperty]
         public int HomeTeamId { get; set; }

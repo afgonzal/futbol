@@ -45,7 +45,7 @@ namespace Futbol.Seasons.Services
 
         public Task BulkAddTeams(IEnumerable<Team> newTeams)
         {
-            return _teamRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.TeamProfile>>(newTeams));
+            return _teamRepository.BatchUpsertAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.TeamProfile>>(newTeams));
         }
     }
 }

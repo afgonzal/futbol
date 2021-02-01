@@ -22,13 +22,13 @@ namespace Futbol.Seasons.DataRepository.Repositories
         public Task<List<TeamProfile>> GetYearTeamsAsync(short year)
         {
 
-            var result = _context.QueryAsync<TeamProfile>(year, QueryOperator.BeginsWith, new string[] {"Profile#"});
+            var result = Context.QueryAsync<TeamProfile>(year, QueryOperator.BeginsWith, new string[] {"Profile#"});
             return result.GetRemainingAsync();
         }
 
         public Task DeleteTeamsAsync(IEnumerable<TeamProfile> teams)
         {
-            var batch = _context.CreateBatchWrite<TeamProfile>();
+            var batch = Context.CreateBatchWrite<TeamProfile>();
             batch.AddDeleteItems(teams);
             return batch.ExecuteAsync();
         }

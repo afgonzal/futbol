@@ -12,11 +12,13 @@ namespace Futbol.SeasonsAPI.Controllers
     public class SeasonAdminControllers : ControllerBase
     {
         private readonly ITeamsService _teamsService;
+        private readonly IMatchesService _matchesService;
         private readonly ILogger<TeamsController> _logger;
 
-        public SeasonAdminControllers(ITeamsService teamsService, ILogger<TeamsController> logger)
+        public SeasonAdminControllers(ITeamsService teamsService,IMatchesService matchesService,  ILogger<TeamsController> logger)
         {
             _teamsService = teamsService;
+            _matchesService = matchesService;
             _logger = logger;
         }
         [HttpDelete("cleanSeason/{year:int}")]
@@ -27,6 +29,14 @@ namespace Futbol.SeasonsAPI.Controllers
             {
                 await _teamsService.DeleteAllTeamsFromSeasonAsync(year);
                 _logger.LogDebug($"Teams from {year} deleted." );
+                //TODO get seasons and rounds
+                byte season = 2;
+                for (byte round = 1; round < 5; round++)
+                {
+                    await _matchesService.DeleteAllMatchesFromSeasonRoundAsync(year, season, round);
+                    _logger.LogDebug($"Matches from {year}#{season}#{round} deleted.");
+                }
+
                 return Ok();
             }
             catch (Exception ex)

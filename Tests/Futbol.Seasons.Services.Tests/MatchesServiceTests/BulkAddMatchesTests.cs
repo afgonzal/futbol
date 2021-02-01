@@ -30,26 +30,26 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         public async Task Ok_Success()
         {
             var service = new MatchesService(_repository.Object, _mapper);
-            await service.BulkAddMatches(MockedMatches());
-            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()),Times.Once);
+            await service.BulkAddMatches(MockedMatches().ToList());
+            _repository.Verify(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()),Times.Once);
         }
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>())).ThrowsAsync(new DataException());
 
             var service = new MatchesService(_repository.Object, _mapper);
-            Assert.ThrowsAsync<DataException>(async () => await service.BulkAddMatches(MockedMatches()));
+            Assert.ThrowsAsync<DataException>(async () => await service.BulkAddMatches(MockedMatches().ToList()));
 
-            _repository.Verify(x => x.BatchAddAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()), Times.Once);
+            _repository.Verify(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>()), Times.Once);
         }
 
         private IEnumerable<BusinessEntities.Match> MockedMatches()
         {
             return Enumerable.Range(1, 5).Select(id => new BusinessEntities.Match
             {
-               Year = 2020, MatchId = id
+               Year = 2020, MatchId = (byte)id
             });
         }
     }

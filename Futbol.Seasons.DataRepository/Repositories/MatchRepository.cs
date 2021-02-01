@@ -20,13 +20,13 @@ namespace Futbol.Seasons.DataRepository.Repositories
 
         public Task<List<Match>> GetMatchesAsync(short year, byte season, byte round)
         {
-            var result = _context.QueryAsync<Match>($"{year}#{season}#{round}");
+            var result = Context.QueryAsync<Match>($"{year}#{season}#{round}");
             return result.GetRemainingAsync();
         }
 
         public Task DeleteMatchesAsync(IEnumerable<Match> matches)
         {
-            var batch = _context.CreateBatchWrite<Match>();
+            var batch = Context.CreateBatchWrite<Match>();
             batch.AddDeleteItems(matches);
             return batch.ExecuteAsync();
         }

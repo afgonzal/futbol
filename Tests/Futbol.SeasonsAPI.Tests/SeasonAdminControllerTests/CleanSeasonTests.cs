@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.Services;
 using Futbol.SeasonsAPI.Controllers;
-using Futbol.SeasonsAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,18 +16,20 @@ namespace Futbol.SeasonsAPI.Tests.SeasonAdminControllerTests
     {
         private Mock<ITeamsService> _teamsService;
         private Mock<ILogger<TeamsController>> _logger;
+        private Mock<IMatchesService> _matchesService;
         private const short Year = 2020;
         [SetUp]
         public void SetUp()
         {
             _teamsService = new Mock<ITeamsService>();
             _logger = new Mock<ILogger<TeamsController>>();
+            _matchesService = new Mock<IMatchesService>();
         }
 
         [Test]
         public async Task Ok_Success()
         {
-            var controller = new SeasonAdminControllers(_teamsService.Object, _logger.Object);
+            var controller = new SeasonAdminControllers(_teamsService.Object, _matchesService.Object, _logger.Object);
             var result = await controller.DeleteSeason(Year);
 
             Assert.IsNotNull(result);
@@ -37,7 +37,8 @@ namespace Futbol.SeasonsAPI.Tests.SeasonAdminControllerTests
             Assert.IsInstanceOf<OkResult>(result);
 
             _teamsService.Verify(x => x.DeleteAllTeamsFromSeasonAsync(It.IsAny<short>()), Times.Once);
-            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            _matchesService.Verify(x => x.DeleteAllMatchesFromSeasonRoundAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Exactly(4));
+            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Exactly(5));
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
         }
 
@@ -45,7 +46,7 @@ namespace Futbol.SeasonsAPI.Tests.SeasonAdminControllerTests
         public async Task ServiceFail_Return500()
         {
             _teamsService.Setup(x => x.DeleteAllTeamsFromSeasonAsync(It.IsAny<short>())).ThrowsAsync(new DataException());
-            var controller = new SeasonAdminControllers(_teamsService.Object, _logger.Object);
+            var controller = new SeasonAdminControllers(_teamsService.Object, _matchesService.Object, _logger.Object);
             var result = await controller.DeleteSeason(Year);
 
             Assert.IsNotNull(result);
@@ -58,6 +59,7 @@ namespace Futbol.SeasonsAPI.Tests.SeasonAdminControllerTests
             _teamsService.Verify(x => x.DeleteAllTeamsFromSeasonAsync(It.IsAny<short>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            _matchesService.Verify(x => x.DeleteAllMatchesFromSeasonRoundAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Never);
         }
     }
 }

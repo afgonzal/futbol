@@ -11,7 +11,7 @@ namespace Futbol.Seasons.BusinessEntities
 
         public byte Round { get; set; }
 
-        public int MatchId { get; set; }
+        public byte MatchId { get; set; }
 
         public int HomeTeamId { get; set; }
 
@@ -21,7 +21,7 @@ namespace Futbol.Seasons.BusinessEntities
 
         public string AwayTeamName { get; set; }
 
-        public string ScheduledDate { get; set; }
+        public DateTimeOffset ScheduledDate { get; set; }
 
         public bool WasPlayed { get; set; }
 

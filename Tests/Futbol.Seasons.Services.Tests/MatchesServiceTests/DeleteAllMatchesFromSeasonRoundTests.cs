@@ -74,7 +74,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
             return Enumerable.Range(1, 5).Select(id => new DataRepository.DataEntities.Match
             {
                 YearSeasonRound = $"{Year}#{Season}#{Round}",
-                MatchId = id
+                MatchId = (byte)id
             });
         }
     }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -13,6 +15,7 @@ namespace Futbol.Seasons.Services
         Task DeleteAllMatchesFromSeasonRoundAsync(short year, byte season, byte round);
         Task<IEnumerable<Match>> GetSeasonRoundMatchesAsync(short year, byte season, byte round);
         Task BulkAddMatches(IList<Match> newMatches);
+        Task SetRoundResults(short year, byte season, byte round, IList<Match> matchesResults);
     }
 
     public class MatchesService : IMatchesService
@@ -45,12 +48,38 @@ namespace Futbol.Seasons.Services
         public Task BulkAddMatches(IList<Match> newMatches)
         {
             //numerate MatchId
-            for (int matchId = 0; matchId < newMatches.Count(); matchId++)
+            for (byte matchId = 0; matchId < newMatches.Count(); matchId++)
             {
-                newMatches[matchId].MatchId = matchId + 1;
+                newMatches[matchId].MatchId = (byte)(matchId+1);
             }
 
-            return _matchRepository.BatchAddAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.Match>>(newMatches));
+            return _matchRepository.BatchUpsertAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.Match>>(newMatches));
+        }
+        /// <summary>
+        /// Update result and update stats (no streams)
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="season"></param>
+        /// <param name="round"></param>
+        /// <param name="matchesResults"></param>
+        /// <returns></returns>
+        public async Task SetRoundResults(short year, byte season, byte round, IList<Match> matchesResults)
+        {
+            var matches = (await _matchRepository.GetMatchesAsync(year, season, round)).ToDictionary(match => match.HomeTeamId, match => match);
+
+            foreach (var result in matchesResults)
+            {
+                if (!matches.ContainsKey(result.HomeTeamId))
+                {
+                    throw new DataException($"Missing match {{year}}#{{season}}#{{round}} {result.HomeTeamId} vs {result.AwayTeamId}.");
+                }
+
+                var match = matches[result.HomeTeamId];
+                match.HomeScore = result.HomeScore;
+                match.AwayScore = result.AwayScore;
+            }
+
+            await _matchRepository.BatchUpsertAsync(matches.Values.ToList());
         }
     }
 }

@@ -24,6 +24,19 @@ namespace Futbol.SeasonsAPI.Models
                 .ForMember(dest => dest.Round,
                     opt => opt.MapFrom((src, dest, destMember, context) => (byte) context.Items["round"]));
 
+
+            CreateMap<MatchResultRequest, Match>()
+                .ForMember(dest => dest.Year,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (short)context.Items["year"]))
+                .ForMember(dest => dest.Season,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (byte)context.Items["season"]))
+                .ForMember(dest => dest.Round,
+                    opt => opt.MapFrom((src, dest, destMember, context) => (byte)context.Items["round"]));
+
+
+            CreateMap<Match, MatchModel>();
+
+
             #endregion
 
         }
