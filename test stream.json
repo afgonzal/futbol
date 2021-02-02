@@ -1,0 +1,86 @@
+{
+	"Records": [
+		{
+			"eventID": "2",
+			"eventName": "MODIFY",
+			"eventVersion": "1.0",
+			"eventSource": "aws:dynamodb",
+			"awsRegion": "{region}",
+			"dynamodb": {
+				"Keys": {
+					"YearSeasonRound": {
+						"S": "2020#2#1"
+					},
+					"MatchId": {
+						"N": 1
+					}
+				},
+				"NewImage": {
+					"YearSeasonRound": {
+						"S": "2020#2#1"
+					},
+					"HomeScore": {
+						"N": 4
+					},
+					"AwayScore": {
+						"N": 3
+					},
+					"MatchId": {
+						"N": 1
+					},
+					"HomeTeamId": {
+						"N": 12
+					},
+					"AwayTeamId": {
+						"N": 4
+					},
+					"AwayTeamName": {
+						"S": "Montreal Impact"
+					},
+					"HomeTeamName": {
+						"S": "Los Angeles FC"
+					},
+					"WasPlayed": {
+						"BOOL": 0
+					},
+				},
+				"OldImage": {
+					"YearSeasonRound": {
+						"S": "2020#2#1"
+					},
+					"HomeScore": {
+						"N": 3
+					},
+					"AwayScore": {
+						"N": 3
+					},
+					"MatchId": {
+						"N": 1
+					},
+					"HomeTeamId": {
+						"N": 12
+					},
+					"AwayTeamId": {
+						"N": 4
+					},
+					"AwayTeamName": {
+						"S": "Montreal Impact"
+					},
+					"HomeTeamName": {
+						"S": "Los Angeles FC"
+					},
+					"WasPlayed": {
+						"BOOL": 1
+					},
+				},
+				"SequenceNumber": "222",
+				"SizeBytes": 59,
+				"StreamViewType": "NEW_AND_OLD_IMAGES"
+			},
+			"eventSourceARN": "arn:aws:dynamodb:us-east-1:148236529865:table/Matches/stream/2021-02-01T18:44:07.922"
+		}
+	]
+}
+
+
+

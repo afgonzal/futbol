@@ -64,7 +64,7 @@ namespace Futbol.SeasonsAPI.Controllers
         {
             try
             {
-                await _teamsService.BulkAddTeams(_mapper.Map<IEnumerable<Team>>(newTeams));
+                await _teamsService.BulkAddTeamsAsync(_mapper.Map<IEnumerable<Team>>(newTeams));
                 _logger.LogDebug($"Teams Created: {newTeams.Count()} \n {JsonConvert.SerializeObject(newTeams.Select(team => new {Year = team.Year, Name = team.Name}))}");
                 return Ok();
             }
@@ -72,6 +72,20 @@ namespace Futbol.SeasonsAPI.Controllers
             {
                 _logger.LogError($"Error bulk adding teams.", ex);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error adding teams.");
+            }
+        }
+        [HttpGet("stats/{year:int}/{season:int}")]
+        public async Task<IActionResult?> GetSeasonTeamsStats([FromRoute]short year, [FromRoute]byte season)
+        {
+            try
+            {
+                var stats = await _teamsService.GetSeasonsTeamsStatsAsync(year, season);
+                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting teams stats {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
             }
         }
     }

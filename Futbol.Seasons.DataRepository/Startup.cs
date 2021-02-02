@@ -10,6 +10,7 @@ namespace Futbol.Seasons.DataRepository
         public static void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
             services.AddScoped<ITeamRepository, TeamRepository>();
+            services.AddScoped<ITeamStatsRepository, TeamStatsRepository>();
             services.AddScoped<IMatchRepository, MatchRepository>();
 
         }

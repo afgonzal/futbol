@@ -17,12 +17,13 @@ using NUnit.Framework;
 namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
 {
     [TestFixture]
-    public class BulkAddTeamsTests
+    public class GetSeasonTeamsStatsTests
     {
         private Mock<ITeamsService> _service;
         private IMapper _mapper;
         private Mock<ILogger<TeamsController>> _logger;
-
+        private const short Year = 2020;
+        private const byte Season = 2;
         [SetUp]
         public void SetUp()
         {
@@ -38,24 +39,29 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         [Test]
         public async Task Ok_Success()
         {
+            _service.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedStats());
+
             var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAdd(MockedTeams());
+            var result = await controller.GetSeasonTeamsStats(Year, Season);
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
-            Assert.IsInstanceOf<OkResult>(result);
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            Assert.IsNotNull(((OkObjectResult)result).Value);
+            Assert.IsInstanceOf<IEnumerable<TeamSeasonStats>>(((OkObjectResult)result).Value);
+            Assert.IsTrue(((IEnumerable<TeamSeasonStats>)((OkObjectResult)result).Value).Any());
 
-            _service.Verify(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
-            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            _service.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
         }
 
+      
         [Test]
         public async Task ServiceFail_Return500()
         {
-            _service.Setup(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
+            _service.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
             var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
-            var result = await controller.BulkAdd(MockedTeams());
+            var result = await controller.GetSeasonTeamsStats(Year, Season);
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
@@ -64,22 +70,15 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
-            _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
+            _service.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
         }
 
-        private IEnumerable<TeamAddRequest> MockedTeams()
+        private IEnumerable<TeamSeasonStats> MockedStats()
         {
-            return Enumerable.Range(1, 5).Select(tid => new TeamAddRequest
-            {
-                Id = tid,
-                Name = $"team{tid}",
-                ConferenceId = 0,
-                Delegates = new string[] { "Favio", "Ale" },
-                Year = 2020,
-                Years = new short[] { 2020, 2021 }
-            });
+            return Enumerable.Range(1, 5).Select(id => new TeamSeasonStats
+                {Id = id, W = (byte) id, G = 5, GF = (byte) (10 + id)});
         }
+
     }
 }

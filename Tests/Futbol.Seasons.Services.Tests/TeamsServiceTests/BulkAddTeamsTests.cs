@@ -30,8 +30,8 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new TeamsService(_repository.Object, _mapper);
-            await service.BulkAddTeams(MockedTeams());
+            var service = new TeamsService(_repository.Object, null, _mapper);
+            await service.BulkAddTeamsAsync(MockedTeams());
             _repository.Verify(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<TeamProfile>>()),Times.Once);
         }
 
@@ -40,8 +40,8 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<TeamProfile>>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(_repository.Object, _mapper);
-            Assert.ThrowsAsync<DataException>(async () => await service.BulkAddTeams(MockedTeams()));
+            var service = new TeamsService(_repository.Object, null, _mapper);
+            Assert.ThrowsAsync<DataException>(async () => await service.BulkAddTeamsAsync(MockedTeams()));
 
             _repository.Verify(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Once);
         }

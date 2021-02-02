@@ -77,6 +77,7 @@ namespace Futbol.Seasons.Services
                 var match = matches[result.HomeTeamId];
                 match.HomeScore = result.HomeScore;
                 match.AwayScore = result.AwayScore;
+                match.WasPlayed = result.WasPlayed;
             }
 
             await _matchRepository.BatchUpsertAsync(matches.Values.ToList());

@@ -9,6 +9,8 @@ namespace Futbol.Seasons.DataRepository.Repositories
     public interface ITeamRepository : IRepository<TeamProfile>
     {
         Task<List<TeamProfile>> GetYearTeamsAsync(short year);
+
+        Task<List<TeamSeasonStats>> GetSeasonTeamsStatsAsync(short year, byte season);
         Task DeleteTeamsAsync(IEnumerable<TeamProfile> teams);
     }
     public class TeamRepository : Repository<TeamProfile>, ITeamRepository
@@ -22,8 +24,14 @@ namespace Futbol.Seasons.DataRepository.Repositories
         public Task<List<TeamProfile>> GetYearTeamsAsync(short year)
         {
 
-            var result = Context.QueryAsync<TeamProfile>(year, QueryOperator.BeginsWith, new string[] {"Profile#"});
-            return result.GetRemainingAsync();
+            var query = Context.QueryAsync<TeamProfile>(year, QueryOperator.BeginsWith, new string[] {"Profile#"});
+            return query.GetRemainingAsync();
+        }
+
+        public Task<List<TeamSeasonStats>> GetSeasonTeamsStatsAsync(short year, byte season)
+        {
+            var query = Context.QueryAsync<TeamSeasonStats>(year, QueryOperator.BeginsWith, new string[] { $"SeasonStats#{season}" });
+            return query.GetRemainingAsync();
         }
 
         public Task DeleteTeamsAsync(IEnumerable<TeamProfile> teams)

@@ -27,6 +27,21 @@ namespace Futbol.Seasons.Services
             CreateMap<Match, DataRepository.DataEntities.Match>()
                 .ForMember(dest => dest.YearSeasonRound, opt => opt.MapFrom(src => $"{src.Year}#{src.Season}#{src.Round}"));
             #endregion
+
+            #region TeamStats 
+
+            CreateMap<DataRepository.DataEntities.TeamSeasonStats, TeamSeasonStats>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TeamId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.TeamName));
+
+
+            CreateMap<TeamSeasonStats, DataRepository.DataEntities.TeamSeasonStats>()
+                .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Name))
+                .ForCtorParam("year", opt => opt.MapFrom((src, ctx) => ctx.Items["year"]))
+                .ForCtorParam("season", opt => opt.MapFrom((src, ctx) => ctx.Items["season"]))
+                .ForCtorParam("teamId", opt => opt.MapFrom((src => src.Id)));
+
+            #endregion
         }
     }
 }

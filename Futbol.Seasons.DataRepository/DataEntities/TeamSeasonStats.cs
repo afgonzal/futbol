@@ -5,18 +5,29 @@ namespace Futbol.Seasons.DataRepository.DataEntities
     [DynamoDBTable("Teams")]
     public class TeamSeasonStats
     {
+        private const string Prefix = "SeasonStats";
+
+        public TeamSeasonStats()
+        {
+            
+        }
+
+        public TeamSeasonStats(short year, byte season,int teamId) : this()
+        {
+            Year = year;
+            Sk = $"{Prefix}#{season}#{teamId}";
+        }
         [DynamoDBHashKey]
         public short Year { get; set; }
 
         [DynamoDBRangeKey]
-        internal string Sk { get; set; }
+        public string Sk { get; set; }
 
         [DynamoDBIgnore]
-        public int TeamId
-        {
-            get => Sk.ParseCompositeKey<int>(1, false).GetValueOrDefault();
-            set => Sk = $"SeasonStats#{value}";
-        }
+        public int TeamId => Sk.ParseCompositeKey<int>(2, false).GetValueOrDefault();
+
+        [DynamoDBIgnore]
+        public byte Season => Sk.ParseCompositeKey<byte>(1, false).GetValueOrDefault();
 
         [DynamoDBProperty]
         public string TeamName { get; set; }
@@ -46,7 +57,7 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public byte GA { get; set; }
 
         [DynamoDBIgnore] 
-        public byte GD => (byte)(GF - GA);
+        public sbyte GD => (sbyte)(GF - GA);
 
         [DynamoDBProperty] public byte Pts => (byte) (W * 3 + D);
     }
