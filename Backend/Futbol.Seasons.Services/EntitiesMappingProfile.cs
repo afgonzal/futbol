@@ -42,6 +42,12 @@ namespace Futbol.Seasons.Services
                 .ForCtorParam("teamId", opt => opt.MapFrom((src => src.Id)));
 
             #endregion
+
+            #region Config
+
+            CreateMap<DataRepository.DataEntities.SeasonConfig, SeasonConfig>();
+
+            #endregion
         }
     }
 }

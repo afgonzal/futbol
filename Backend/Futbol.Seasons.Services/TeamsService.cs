@@ -18,6 +18,7 @@ namespace Futbol.Seasons.Services
 
         Task<TeamSeasonStats> AddTeamStatsAsync(short year, byte season, int teamId, string teamName);
         Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamSeasonStats> stats);
+        Task ResetAllTeamStatsFromSeasonAsync(short year, byte season);
     }
 
     public class TeamsService : ITeamsService
@@ -46,7 +47,7 @@ namespace Futbol.Seasons.Services
         public async Task DeleteAllTeamsFromSeasonAsync(short year)
         {
             var teams = await _teamRepository.GetYearTeamsAsync(year);
-            await _teamRepository.DeleteTeamsAsync(teams);
+            await _teamRepository.BatchDeleteAsync(teams);
         }
 
         public Task BulkAddTeamsAsync(IEnumerable<Team> newTeams)
@@ -56,7 +57,7 @@ namespace Futbol.Seasons.Services
 
         public async Task<IEnumerable<TeamSeasonStats>> GetSeasonsTeamsStatsAsync(short year, byte season)
         {
-            var stats = await _teamRepository.GetSeasonTeamsStatsAsync(year, season);
+            var stats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season);
             return _mapper.Map<IEnumerable<TeamSeasonStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
         }
 
@@ -75,6 +76,12 @@ namespace Futbol.Seasons.Services
                     opt.Items["year"] = year;
                     opt.Items["season"] = season;
                 }));
+        }
+
+        public async Task ResetAllTeamStatsFromSeasonAsync(short year, byte season)
+        {
+            var stats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season);
+            await _statsRepository.BatchDeleteAsync(stats);
         }
     }
 }

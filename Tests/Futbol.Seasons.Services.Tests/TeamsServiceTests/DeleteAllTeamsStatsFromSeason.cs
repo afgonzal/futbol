@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
-    public class DeleteAllTeamsFromSeason
+    public class DeleteAllTeamsStatsFromSeason
     {
         private Mock<ITeamRepository> _repository;
         private IMapper _mapper;

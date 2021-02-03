@@ -45,7 +45,7 @@ namespace Futbol.SeasonsAPI.Controllers
 
         [HttpPost("batchFixture")]
         public async Task<IActionResult> BulkAddFixture([FromRoute] short year, [FromRoute] byte season,
-            [FromBody] IList<IList<MatchAddRequest>> newMatches)
+            [FromBody] IList<IList<MatchAddRequest>> newMatches, [FromQuery]byte startingFromRound = 1)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace Futbol.SeasonsAPI.Controllers
             try
             {
 
-                byte round = 1;
+                byte round = startingFromRound;
                 foreach (var roundMatches in newMatches)
                 {
                     await _matchesService.BulkAddMatches(_mapper.Map<IList<Match>>(roundMatches,

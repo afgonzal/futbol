@@ -29,9 +29,9 @@ namespace Futbol.Seasons.StatsStream
 
                 
 
-                context.Logger.LogLine($"Event ID: {record.EventID}");
-                context.Logger.LogLine($"Event Name: {record.EventName}");
-                context.Logger.LogLine($"Event Table: {source}");
+                //context.Logger.LogLine($"Event ID: {record.EventID}");
+                //context.Logger.LogLine($"Event Name: {record.EventName}");
+                //context.Logger.LogLine($"Event Table: {source}");
                 
                 switch (source)
                 {

@@ -13,14 +13,14 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
     [TestFixture]
     public class GetSeasonTeamsStatsTests
     {
-        private Mock<ITeamRepository> _repository;
+        private Mock<ITeamStatsRepository> _repository;
         private IMapper _mapper;
         private const short Year = 2020;
         private const byte Season = 2;
         [SetUp]
         public void SetUp()
         {
-            _repository = new Mock<ITeamRepository>();
+            _repository = new Mock<ITeamStatsRepository>();
             var mockMapper = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new EntitiesMappingProfile());
@@ -31,8 +31,8 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedTeams(Year).ToList());
-            var service = new TeamsService(_repository.Object, null, _mapper);
+            _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedStats(Year).ToList());
+            var service = new TeamsService(null, _repository.Object,  _mapper);
             var result = await service.GetSeasonsTeamsStatsAsync(Year, Season);
 
             Assert.NotNull(result);
@@ -46,13 +46,13 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(_repository.Object, null, _mapper);
+            var service = new TeamsService(null, _repository.Object,  _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetSeasonsTeamsStatsAsync(Year, Season));
 
             _repository.Verify(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
         }
 
-        private IEnumerable<TeamSeasonStats> MockedTeams(short year)
+        private IEnumerable<TeamSeasonStats> MockedStats(short year)
         {
             return Enumerable.Range(1,5).Select(tId => new TeamSeasonStats(year, Season, tId)
             {

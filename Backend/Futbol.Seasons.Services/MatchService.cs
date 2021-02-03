@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
@@ -16,16 +18,20 @@ namespace Futbol.Seasons.Services
         Task<IEnumerable<Match>> GetSeasonRoundMatchesAsync(short year, byte season, byte round);
         Task BulkAddMatches(IList<Match> newMatches);
         Task SetRoundResults(short year, byte season, byte round, IList<Match> matchesResults);
+        Task ResetAllMatchesFromSeasonAsync(short year, byte season);
     }
 
     public class MatchesService : IMatchesService
     {
         private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
-        public MatchesService(IMatchRepository matchRepository, IMapper mapper)
+        private ISeasonConfigService _seasonService;
+
+        public MatchesService(IMatchRepository matchRepository, ISeasonConfigService seasonService, IMapper mapper)
         {
             _matchRepository = matchRepository;
             _mapper = mapper;
+            _seasonService = seasonService;
         }
 
         public async Task AddMatch(Match newMatch)
@@ -81,6 +87,26 @@ namespace Futbol.Seasons.Services
             }
 
             await _matchRepository.BatchUpsertAsync(matches.Values.ToList());
+        }
+
+        public async Task ResetAllMatchesFromSeasonAsync(short year, byte season)
+        {
+            var config = await _seasonService.GetConfig(year, season);
+            if (config == null)
+                throw new ArgumentException($"Missing config for {year}#{season}.");
+
+            for (byte round = 1; round <= config.RoundsCount; round++)
+            {
+                var matches = await _matchRepository.GetMatchesAsync(year, season, round);
+                foreach (var match in matches)
+                {
+                    match.WasPlayed = false;
+                    match.HomeScore = null;
+                    match.AwayScore = null;
+                }
+
+                await _matchRepository.BatchUpsertAsync(matches);
+            }
         }
     }
 }

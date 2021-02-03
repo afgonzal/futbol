@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.DynamoDBEvents;
@@ -20,11 +21,14 @@ namespace Futbol.Seasons.StatsStream
     {
         private readonly ITeamsService _teamsService;
         private readonly IMatchesService _matchesService;
+        private readonly ILambdaContext _context;
 
-        public TeamsStatsAggregationService(ITeamsService teamsService, IMatchesService matchesService)
+
+        public TeamsStatsAggregationService(ITeamsService teamsService, IMatchesService matchesService, ILambdaContext context)
         {
             _teamsService = teamsService;
             _matchesService = matchesService;
+            _context = context;
         }
 
         private short? _year;
@@ -40,12 +44,14 @@ namespace Futbol.Seasons.StatsStream
         }
 
         private IDictionary<int, TeamSeasonStats> _stats;
+
         private async Task<IDictionary<int, TeamSeasonStats>> StatsAsync()
         {
             if (_stats == null)
             {
                 var stats = await _teamsService.GetSeasonsTeamsStatsAsync(_year.GetValueOrDefault(), _season.GetValueOrDefault());
                 _stats = stats.ToDictionary(team => team.Id, team => team);
+                _context.Logger.LogLine("Getting Stats");
                 return _stats;
             }
             else return _stats;
@@ -59,6 +65,13 @@ namespace Futbol.Seasons.StatsStream
         public async Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
         {
             context.Logger.LogLine($"Process Stream Match result keys:{Document.FromAttributeMap(record.Dynamodb.Keys).ToJson()}.");
+
+            if (record.EventName != OperationType.MODIFY)
+            {
+                context.Logger.LogLine($"Process Stream {record.EventName}.");
+                return;
+            }
+
             context.Logger.LogLine($"Process Stream Match old:{Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson()}.");
             context.Logger.LogLine($"Process Stream Match new:{Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson()}.");
 
@@ -94,15 +107,15 @@ namespace Futbol.Seasons.StatsStream
             }
         }
 
-        public Task UpdateStatsAsync(ILambdaContext context)
+        public async Task UpdateStatsAsync(ILambdaContext context)
         {
             if (_year.HasValue && _season.HasValue)
             {
                 context.Logger.LogLine("Stats updated");
-                return _teamsService.BulkUpsertTeamStats(_year.Value, _season.Value, _stats.Values.ToList());
+                await _teamsService.BulkUpsertTeamStats(_year.Value, _season.Value, _stats.Values.ToList());
+                _stats = null;
             }
             context.Logger.LogLine("No stats to update");
-            return Task.CompletedTask;
         }
 
         /// <summary>

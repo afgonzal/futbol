@@ -122,6 +122,11 @@ namespace Futbol.Seasons.DataRepository
             return batch.ExecuteAsync();
         }
 
-      
+        public Task BatchDeleteAsync(IEnumerable<TEntity> entities)
+        {
+            var batch = Context.CreateBatchWrite<TEntity>();
+            batch.AddDeleteItems(entities);
+            return batch.ExecuteAsync();
+        }
     }
 }

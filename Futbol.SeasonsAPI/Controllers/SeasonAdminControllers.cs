@@ -21,7 +21,7 @@ namespace Futbol.SeasonsAPI.Controllers
             _matchesService = matchesService;
             _logger = logger;
         }
-        [HttpDelete("cleanSeason/{year:int}")]
+        [HttpDelete("cleanYear/{year:int}")]
         public async Task<IActionResult> DeleteSeason([FromRoute]short year)
         {
             
@@ -45,6 +45,26 @@ namespace Futbol.SeasonsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error cleaning season {year}.");
             }
         }
-       
+
+        [HttpPut("resetSeason/{year:int}/{season:int}")]
+        public async Task<IActionResult> ResetSeason([FromRoute] short year, [FromRoute] byte season)
+        {
+            try
+            {
+                await _teamsService.ResetAllTeamStatsFromSeasonAsync(year, season);
+                _logger.LogDebug($"Resetting stats from {year}#{season}.");
+
+                await _matchesService.ResetAllMatchesFromSeasonAsync(year, season);
+                _logger.LogDebug($"Resetting matches from {year}#{season}.");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error resetting season {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error cleaning season {year}#{season}.");
+            }
+        }
+
     }
 }
