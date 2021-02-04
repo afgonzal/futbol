@@ -43,5 +43,7 @@ namespace Futbol.SeasonsAPI.Models
     {
         public byte? HomeScore { get; set; }
         public byte? AwayScore { get; set; }
+        [JsonPropertyName("sd")]
+        public string ScheduledDate { get; set; }
     }
 }

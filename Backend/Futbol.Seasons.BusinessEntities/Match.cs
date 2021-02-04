@@ -21,7 +21,7 @@ namespace Futbol.Seasons.BusinessEntities
 
         public string AwayTeamName { get; set; }
 
-        public DateTimeOffset ScheduledDate { get; set; }
+        public DateTimeOffset? ScheduledDate { get; set; }
 
         public bool WasPlayed { get; set; }
 
