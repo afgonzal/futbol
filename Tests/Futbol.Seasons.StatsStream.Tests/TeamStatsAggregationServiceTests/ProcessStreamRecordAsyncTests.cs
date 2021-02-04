@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
@@ -16,7 +15,7 @@ using NUnit.Framework;
 namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
 {
     [TestFixture]
-    public class ProcessStreamRecordAsyncTests
+    public class ProcessStreamRecordAsyncModifyTests
     {
         private Mock<ITeamsService> _teamsService;
         private Mock<IMatchesService> _matchesService;
@@ -40,144 +39,160 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         [Test]
         public async Task ReplaceResult_AwayWin_Success()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats().ToList());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1, true), NewMatch(2, 3)), _context.Object);
 
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
         }
 
         [Test]
         public async Task RemoveResult_AwayWin_Success()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats().ToList());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1, true), NewMatch(2, 3, false)),
                 _context.Object);
 
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
         }
 
         [Test]
         public async Task NewResult_AwayWin_Success()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats().ToList());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object);
 
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+        }
+
+        [Test]
+        public async Task SameResult_NotPlayed_Success()
+        {
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            await service.ProcessStreamRecordAsync(MockedRecord(NewMatch(2, 1, false), NewMatch(2,1, false)), _context.Object);
+
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
+            _teamsService.Verify(
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
+                Times.Never);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
         }
 
         [Test]
         public async Task NewResult_HomeWin_Success()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats().ToList());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(4, 3)), _context.Object);
 
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
         }
 
         [Test]
         public async Task NewResult_Draw_Success()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats().ToList());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats());
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 2)), _context.Object);
 
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
         }
 
 
         [Test]
         public void GetStatsError_ThrowException()
         {
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
+            _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ThrowsAsync(new DataException());
 
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
-            Assert.ThrowsAsync<DataException>(async () =>
-                await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
-
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(1));
-            _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
-                Times.Never);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
-        }
-
-        [Test]
-        public void AddNewHomeTeamStatError_ThrowException()
-        {
-            var missingStat = MockedStats().ToList();
-            missingStat.RemoveAt(2);
-
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(missingStat);
-            _teamsService.Setup(x =>
-                    x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()))
-                .ThrowsAsync(new DataException());
-
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
-            Assert.ThrowsAsync<DataException>(async () =>
-                await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
-
-            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(2));
-            _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
-                Times.Once);
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
-        }
-
-        [Test]
-        public void AddAwayHomeTeamStatError_ThrowException()
-        {
-            var missingStat = MockedStats().ToList();
-            missingStat.RemoveAt(2);
-            missingStat.RemoveAt(3);
-
-            _teamsService.Setup(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(missingStat);
-            _teamsService
-                .SetupSequence(x =>
-                    x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()))
-                .ReturnsAsync(MockedNewStats(3, "DC United"))
-                .ThrowsAsync(new DataException());
-
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object, _context.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
             Assert.ThrowsAsync<DataException>(async () =>
                 await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(3));
             _teamsService.Verify(
-                x => x.AddTeamStatsAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<int>(), It.IsAny<string>()),
-                Times.Exactly(2));
-            _teamsService.Verify(x => x.GetSeasonsTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
+                Times.Never);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+        }
+
+        [Test]
+        public void AddNewHomeTeamStatError_ThrowException()
+        {
+            _teamsService.SetupSequence(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync((TeamSeasonStats)null)
+                .ReturnsAsync(MockedStats());
+            _teamsService.Setup(x =>
+                    x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
+                .ThrowsAsync(new DataException());
+
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            Assert.ThrowsAsync<DataException>(async () =>
+                await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
+
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
+            _teamsService.Verify(
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
+                Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+        }
+
+        [Test]
+        public void AddAwayTeamStatError_ThrowException()
+        {
+            _teamsService.SetupSequence(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .ReturnsAsync(MockedStats()).ReturnsAsync((TeamSeasonStats)null);
+            _teamsService
+                .Setup(x =>
+                    x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
+                .ThrowsAsync(new DataException());
+
+            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            Assert.ThrowsAsync<DataException>(async () =>
+                await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
+
+            _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
+            _teamsService.Verify(
+                x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
+                Times.Once);
+            _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
         }
 
         private string OldMatch(int homeScore, int awayScore, bool wasPlayed = false)
@@ -223,23 +238,24 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 {
                     NewImage = Document.FromJson(newMatchJson).ToAttributeMap(),
                     OldImage = Document.FromJson(oldMatchJson).ToAttributeMap(),
-                    Keys = Document.FromJson(KeysJson()).ToAttributeMap()
-                }
+                    Keys = Document.FromJson(KeysJson()).ToAttributeMap(),
+                },
+                EventName = OperationType.MODIFY
             };
         }
 
-        private IEnumerable<TeamSeasonStats> MockedStats()
+        private TeamSeasonStats MockedStats()
         {
-            return Enumerable.Range(1, 5).Select(tId => new TeamSeasonStats
+            return new TeamSeasonStats
             {
-                Id = tId,
-                Name = $"team{tId}",
+                Id = 2,
+                Name = $"team",
                 G = 5,
-                W = (byte) tId,
-                L = (byte) (5 - tId),
-                GF = (byte) tId,
-                GA = (byte) tId
-            });
+                W = (byte) 3,
+                L = (byte) 4,
+                GF = (byte) 5,
+                GA = (byte) 6
+            };
         }
 
         private TeamSeasonStats MockedNewStats(int teamId, string name)

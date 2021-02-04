@@ -15,20 +15,17 @@ namespace Futbol.Seasons.StatsStream
     public interface ITeamsStatsAggregationService
     {
         Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context);
-        Task UpdateStatsAsync(ILambdaContext context);
     }
     public class TeamsStatsAggregationService : ITeamsStatsAggregationService
     {
         private readonly ITeamsService _teamsService;
         private readonly IMatchesService _matchesService;
-        private readonly ILambdaContext _context;
 
 
-        public TeamsStatsAggregationService(ITeamsService teamsService, IMatchesService matchesService, ILambdaContext context)
+        public TeamsStatsAggregationService(ITeamsService teamsService, IMatchesService matchesService)
         {
             _teamsService = teamsService;
             _matchesService = matchesService;
-            _context = context;
         }
 
         private short? _year;
@@ -43,24 +40,6 @@ namespace Futbol.Seasons.StatsStream
             }
         }
 
-        private IDictionary<int, TeamSeasonStats> _stats;
-
-        private async Task<IDictionary<int, TeamSeasonStats>> StatsAsync()
-        {
-            if (_stats == null)
-            {
-                var stats = await _teamsService.GetSeasonsTeamsStatsAsync(_year.GetValueOrDefault(), _season.GetValueOrDefault());
-                _stats = stats.ToDictionary(team => team.Id, team => team);
-                _context.Logger.LogLine("Getting Stats");
-                return _stats;
-            }
-            else return _stats;
-        }
-
-        private enum WhoWon
-        {
-            Home, Away, Draw
-        }
 
         public async Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
         {
@@ -78,28 +57,51 @@ namespace Futbol.Seasons.StatsStream
             var oldResult = JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson());
             var newResult = JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson());
 
-            if (!(await ValidateMatchAsync(context.Logger, oldResult, newResult)))
+
+            var homeStats = await _teamsService.GetTeamSeasonStatsAsync(oldResult.HomeTeamId, oldResult.Year, oldResult.Season);
+            var awayStats = await _teamsService.GetTeamSeasonStatsAsync(oldResult.AwayTeamId, oldResult.Year, oldResult.Season);
+
+            if (homeStats == null)
+            {
+                context.Logger.LogLine($"Team stats not found for team {oldResult.HomeTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                homeStats = await _teamsService.AddTeamStatsAsync(oldResult.HomeTeamId,
+                    oldResult.Year, oldResult.Season, oldResult.HomeTeamName);
+            }
+
+            if (awayStats == null)
+            {
+                context.Logger.LogLine($"Team stats not found for team {oldResult.AwayTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                awayStats = await _teamsService.AddTeamStatsAsync(oldResult.AwayTeamId,
+                    oldResult.Year, oldResult.Season, oldResult.AwayTeamName);
+            }
+
+            if (!(await ValidateMatchAsync(context.Logger, oldResult, newResult, homeStats, awayStats)))
                 throw new DataException("Unable to process record, invalid operation for match.");
 
             SetYearSeason(newResult.Year, newResult.Season);
 
             
-
             if (!oldResult.WasPlayed && newResult.WasPlayed) //just add points
             {
                 context.Logger.LogLine($"Set new result {newResult.MatchId}.");
-                await SetNewResult(newResult);
+                SetNewResult(newResult, homeStats, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
             }
             else if (oldResult.WasPlayed && newResult.WasPlayed)//first remove points then add
             {
                 context.Logger.LogLine($"Replace result {newResult.MatchId}.");
-                await RemoveOldResult(oldResult);
-                await SetNewResult(newResult);
+                RemoveOldResult(oldResult, homeStats, awayStats);
+                SetNewResult(newResult, homeStats, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
             }
             else if (oldResult.WasPlayed && !newResult.WasPlayed) //remove points
             {
                 context.Logger.LogLine($"Remove result {newResult.MatchId}.");
-                await RemoveOldResult(oldResult);
+                RemoveOldResult(oldResult, homeStats,awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
             }
             else //do nothing, no change
             {
@@ -107,30 +109,19 @@ namespace Futbol.Seasons.StatsStream
             }
         }
 
-        public async Task UpdateStatsAsync(ILambdaContext context)
-        {
-            if (_year.HasValue && _season.HasValue)
-            {
-                context.Logger.LogLine("Stats updated");
-                await _teamsService.BulkUpsertTeamStats(_year.Value, _season.Value, _stats.Values.ToList());
-                _stats = null;
-            }
-            context.Logger.LogLine("No stats to update");
-        }
 
         /// <summary>
         /// Remove points etc from a result
         /// </summary>
         /// <param name="oldResult"></param>
+        /// <param name="homeStats"></param>
+        /// <param name="awayStats"></param>
         /// <returns></returns>
-        private async Task RemoveOldResult(DataRepository.DataEntities.Match oldResult)
+        private void RemoveOldResult(DataRepository.DataEntities.Match oldResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
         {
             var matchWinner = oldResult.HomeScore > oldResult.AwayScore ? WhoWon.Home :
                 oldResult.AwayScore > oldResult.HomeScore ? WhoWon.Away : WhoWon.Draw;
 
-            var stats = await StatsAsync();
-            var homeStats = stats[oldResult.HomeTeamId];
-            var awayStats = stats[oldResult.AwayTeamId];
             homeStats.G--;
             awayStats.G--;
             homeStats.GF -= oldResult.HomeScore.GetValueOrDefault();
@@ -159,15 +150,14 @@ namespace Futbol.Seasons.StatsStream
         /// Adds points etc to a new result
         /// </summary>
         /// <param name="newResult"></param>
+        /// <param name="homeStats"></param>
+        /// <param name="awayStats"></param>
         /// <returns></returns>
-        private async Task SetNewResult(DataRepository.DataEntities.Match newResult)
+        private void SetNewResult(DataRepository.DataEntities.Match newResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
         {
             var newMatchWinner = newResult.HomeScore > newResult.AwayScore ? WhoWon.Home :
                 newResult.AwayScore > newResult.HomeScore ? WhoWon.Away : WhoWon.Draw;
 
-            var stats = await StatsAsync();
-            var homeStats = stats[newResult.HomeTeamId];
-            var awayStats = stats[newResult.AwayTeamId];
             homeStats.G++;
             awayStats.G++;
             homeStats.GF += newResult.HomeScore.GetValueOrDefault();
@@ -198,9 +188,11 @@ namespace Futbol.Seasons.StatsStream
         /// <param name="logger"></param>
         /// <param name="oldResult"></param>
         /// <param name="newResult"></param>
+        /// <param name="homeStats"></param>
+        /// <param name="awayStats"></param>
         /// <returns></returns>
         private async Task<bool> ValidateMatchAsync(ILambdaLogger logger, DataRepository.DataEntities.Match oldResult,
-            DataRepository.DataEntities.Match newResult)
+            DataRepository.DataEntities.Match newResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
         {
             if (oldResult.Year != newResult.Year || oldResult.Season != newResult.Season ||
                 oldResult.Round != newResult.Round)
@@ -226,22 +218,6 @@ namespace Futbol.Seasons.StatsStream
             {
                 logger.LogLine($"Match is invalid, match played but no score {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}.");
                 return false;
-            }
-
-            if (!(await StatsAsync()).ContainsKey(oldResult.HomeTeamId)) 
-            {
-                logger.LogLine($"Team stats not found for team {oldResult.HomeTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
-                var newStat = await _teamsService.AddTeamStatsAsync(oldResult.Year, oldResult.Season, oldResult.HomeTeamId,
-                    oldResult.HomeTeamName);
-                _stats.Add(oldResult.HomeTeamId, newStat);
-            }
-
-            if (!(await StatsAsync()).ContainsKey(oldResult.AwayTeamId))
-            {
-                logger.LogLine($"Team stats not found for team {oldResult.AwayTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
-                var newStat = await _teamsService.AddTeamStatsAsync(oldResult.Year, oldResult.Season, oldResult.AwayTeamId,
-                    oldResult.AwayTeamName);
-                _stats.Add(oldResult.AwayTeamId, newStat);
             }
 
             return true;

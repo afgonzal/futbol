@@ -21,7 +21,7 @@ namespace Futbol.SeasonsAPI.Controllers
         private readonly IMapper _mapper;
         private readonly ILogger<TeamsController> _logger;
 
-        public TeamsController(ITeamsService teamsService, IMapper mapper, ILogger<TeamsController> logger)
+        public TeamsController(ITeamsService teamsService,  IMapper mapper, ILogger<TeamsController> logger)
         {
             _teamsService = teamsService;
             _mapper = mapper;
@@ -79,13 +79,28 @@ namespace Futbol.SeasonsAPI.Controllers
         {
             try
             {
-                var stats = await _teamsService.GetSeasonsTeamsStatsAsync(year, season);
+                var stats = await _teamsService.GetSeasonTeamsStatsAsync(year, season);
                 return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting teams stats {year}#{season}.", ex);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
+            }
+        }
+
+        [HttpGet("{teamId:int}/{year:int}/{season:int}/matches")]
+        public async Task<IActionResult?> GetTeamSeasonMatches([FromRoute]short year, [FromRoute] byte season, [FromRoute] int teamId)
+        {
+            try
+            {
+                var matches = await _teamsService.GetTeamSeasonMatchesAsync(teamId, year, season);
+                return Ok(_mapper.Map<IEnumerable<MatchModel>>(matches));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting team {teamId} matches {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team matches.");
             }
         }
     }

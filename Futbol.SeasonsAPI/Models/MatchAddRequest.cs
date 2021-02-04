@@ -7,6 +7,9 @@ namespace Futbol.SeasonsAPI.Models
 {
     public class MatchModel
     {
+        public short Year { get; set; }
+        public byte Season { get; set; }
+        public byte Round { get; set; }
         public byte MatchId { get; set; }
         public int HomeTeamId { get; set; }
         public int AwayTeamId { get; set; }

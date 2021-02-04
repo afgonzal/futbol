@@ -23,5 +23,19 @@
         public sbyte GD => (sbyte)(GF - GA);
 
         public byte Pts => (byte)(W * 3 + D);
+
+        /// <summary>
+        /// Reset to 0 everything
+        /// </summary>
+        public void Reset()
+        {
+            G = 0;
+            W = 0;
+            L = 0;
+            D = 0;
+            GF = 0;
+            GA = 0;
+            Sanctions = 0;
+        }
     }
 }

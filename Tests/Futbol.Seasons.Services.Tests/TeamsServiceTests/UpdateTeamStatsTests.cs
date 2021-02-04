@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using AutoMapper;
-using Futbol.Seasons.DataRepository.DataEntities;
+using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.DataRepository.Repositories;
 using Moq;
 using NUnit.Framework;
@@ -9,11 +9,13 @@ using NUnit.Framework;
 namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
-    public class AddTeamStatsTests
+    public class UpdateTeamStatsTests
     {
         private Mock<ITeamStatsRepository> _repository;
         private IMapper _mapper;
-
+        private const short Year = 2020;
+        private const byte Season = 2;
+        private const int TeamId = 35;
         [SetUp]
         public void SetUp()
         {
@@ -29,26 +31,27 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         public async Task Ok_Success()
         {
             var service = new TeamsService(null, null,_repository.Object, null, null, _mapper);
-            var result = await service.AddTeamStatsAsync(13, 2020, 2, "DC");
+            await service.UpdateTeamStatsAsync(TeamId, Year, Season, MockStats());
 
-            Assert.NotNull(result);
-            Assert.IsInstanceOf<BusinessEntities.TeamSeasonStats>(result);
-            Assert.AreEqual(13, result.Id);
-            Assert.AreEqual("DC", result.Name);
 
-            _repository.Verify(x => x.AddAsync(It.IsAny<TeamSeasonStats>()),Times.Once);
+            _repository.Verify(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>()),Times.Once);
         }
+
+      
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.AddAsync(It.IsAny<TeamSeasonStats>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>())).ThrowsAsync(new DataException());
 
             var service = new TeamsService(null, null,_repository.Object, null, null,  _mapper);
-            Assert.ThrowsAsync<DataException>(async () => await service.AddTeamStatsAsync(13, 2020, 2, "DC"));
+            Assert.ThrowsAsync<DataException>(async () => await service.UpdateTeamStatsAsync(TeamId, Year, Season, MockStats() ));
 
-            _repository.Verify(x => x.AddAsync(It.IsAny<TeamSeasonStats>()), Times.Once);
+            _repository.Verify(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>()), Times.Once);
         }
-
+        private TeamSeasonStats MockStats()
+        {
+            return new TeamSeasonStats {G = 3, W = 2, L = 1, GA = 2, GF = 15};
+        }
     }
 }

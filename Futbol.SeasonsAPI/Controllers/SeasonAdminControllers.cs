@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Futbol.Seasons.Services;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +22,7 @@ namespace Futbol.SeasonsAPI.Controllers
             _matchesService = matchesService;
             _logger = logger;
         }
-        [HttpDelete("cleanYear/{year:int}")]
+        [HttpDelete("{year:int}/clean")]
         public async Task<IActionResult> DeleteSeason([FromRoute]short year)
         {
             
@@ -46,7 +47,7 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
-        [HttpPut("resetSeason/{year:int}/{season:int}")]
+        [HttpPut("{year:int}/{season:int}/reset")]
         public async Task<IActionResult> ResetSeason([FromRoute] short year, [FromRoute] byte season)
         {
             try
@@ -62,7 +63,50 @@ namespace Futbol.SeasonsAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error resetting season {year}#{season}.", ex);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error cleaning season {year}#{season}.");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error resetting season {year}#{season}.");
+            }
+        }
+
+        [HttpGet("{year:int}/{season:int}/verify")]
+        public async Task<IActionResult> VerifySeason([FromRoute] short year, [FromRoute] byte season)
+        {
+            try
+            {
+                var teams = await _teamsService.GetYearTeamsAsync(year);
+                
+                foreach (var team in teams)
+                {
+                    var isValid = await _teamsService.VerifyTeamSeasonStatsAsync(team.Id, year, season);
+                    if (!isValid)
+                        return Ok(new {Valid = false, Team = team.Id});
+                }
+
+                var isSeasonValid = await _teamsService.VerifySeasonStatsAsync(year, season);
+                if (!isSeasonValid)
+                    return Ok(new { Valid = false, Season = season });
+
+                return Ok(new {Valid = true});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error verifying season {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error verifying season {year}#{season}.");
+            }
+        }
+
+        [HttpPut("{year:int}/{season:int}/reprocess")]
+        public async Task<IActionResult> ReprocessSeason([FromRoute] short year, [FromRoute] byte season)
+        {
+            try
+            {
+                await _teamsService.ReprocessSeasonStatsAsync(year, season);
+                _logger.LogInformation($"Season reprocessed {year}#{season}.");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error verifying season {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error verifying season {year}#{season}.");
             }
         }
 

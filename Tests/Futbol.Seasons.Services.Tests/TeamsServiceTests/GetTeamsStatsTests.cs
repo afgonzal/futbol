@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Futbol.Seasons.DataRepository.DataEntities;
@@ -11,12 +10,13 @@ using NUnit.Framework;
 namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
-    public class GetSeasonTeamsStatsTests
+    public class GetTeamsStatsTests
     {
         private Mock<ITeamStatsRepository> _repository;
         private IMapper _mapper;
         private const short Year = 2020;
         private const byte Season = 2;
+        private const int TeamId = 10;
         [SetUp]
         public void SetUp()
         {
@@ -31,33 +31,33 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedStats(Year).ToList());
+            _repository.Setup(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>())).ReturnsAsync(MockedStats());
             var service = new TeamsService(null, null, _repository.Object, null, null,  _mapper);
-            var result = await service.GetSeasonTeamsStatsAsync(Year, Season);
+            var result = await service.GetTeamSeasonStatsAsync(TeamId, Year, Season);
 
             Assert.NotNull(result);
-            Assert.IsInstanceOf<IEnumerable<BusinessEntities.TeamSeasonStats>>(result);
+            Assert.IsInstanceOf<BusinessEntities.TeamSeasonStats>(result);
             
-            _repository.Verify(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _repository.Verify(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>())).ThrowsAsync(new DataException());
 
             var service = new TeamsService(null, null, _repository.Object, null, null,  _mapper);
-            Assert.ThrowsAsync<DataException>(async () => await service.GetSeasonTeamsStatsAsync(Year, Season));
+            Assert.ThrowsAsync<DataException>(async () => await service.GetTeamSeasonStatsAsync(TeamId, Year, Season));
 
-            _repository.Verify(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
+            _repository.Verify(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>()), Times.Once);
         }
 
-        private IEnumerable<TeamSeasonStats> MockedStats(short year)
+        private TeamSeasonStats MockedStats()
         {
-            return Enumerable.Range(1,5).Select(tId => new TeamSeasonStats(year, Season, tId)
+            return new TeamSeasonStats(Year, Season, TeamId)
             {
-                TeamName = $"team{tId}", ConferenceId = 0, G = 5,W = (byte)tId, L = (byte)(5-tId), GF = (byte)tId, GA = (byte)tId
-            });
+                TeamName = $"team", ConferenceId = 0, G = 5,W = (byte)3, L = (byte)5, GF = (byte)10, GA = (byte)2
+            };
         }
     }
 }

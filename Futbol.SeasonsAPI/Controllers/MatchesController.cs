@@ -50,6 +50,7 @@ namespace Futbol.SeasonsAPI.Controllers
             try
             {
                 var teams = (await _teamsService.GetYearTeamsAsync(year)).ToDictionary(team => team.Abbreviation.ToLowerInvariant(), team => team);
+
                 foreach (var match in newMatches.SelectMany(m => m.Select(match => match)))
                 {
                     if (!teams.ContainsKey(match.HomeTeamAbbr.ToLowerInvariant()) || !teams.ContainsKey(match.AwayTeamAbbr.ToLowerInvariant()))

@@ -48,14 +48,6 @@ namespace Futbol.Seasons.StatsStream
                         break;
                 }
             }
-
-            var finalTask = new TaskFactory(CancellationToken.None, TaskCreationOptions.None,
-                TaskContinuationOptions.None,
-                TaskScheduler.Default);
-            finalTask.StartNew(() => _statsAggregation.UpdateStatsAsync(context))
-                .Unwrap().GetAwaiter().GetResult();
-
-
             
 
             context.Logger.LogLine("Stream processing complete.");
