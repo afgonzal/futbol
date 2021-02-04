@@ -8,7 +8,7 @@ using Futbol.Seasons.DataRepository.Repositories;
 using Moq;
 using NUnit.Framework;
 
-namespace Futbol.Seasons.Services.Tests.TeamServiceTests
+namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
     public class GetYearTeamsTests
@@ -31,7 +31,7 @@ namespace Futbol.Seasons.Services.Tests.TeamServiceTests
         public async Task Ok_Success()
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams(Year).ToList());
-            var service = new TeamsService(_repository.Object, _mapper);
+            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
             var result = await service.GetYearTeamsAsync(Year);
 
             Assert.NotNull(result);
@@ -45,15 +45,15 @@ namespace Futbol.Seasons.Services.Tests.TeamServiceTests
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(_repository.Object, _mapper);
+            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetYearTeamsAsync(Year));
 
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
         }
 
-        private IEnumerable<Team> MockedTeams(short year)
+        private IEnumerable<TeamProfile> MockedTeams(short year)
         {
-            return Enumerable.Range(1,5).Select(tId => new Team
+            return Enumerable.Range(1,5).Select(tId => new TeamProfile
             {
                 Year = year,
                 TeamId = tId,

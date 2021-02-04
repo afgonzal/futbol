@@ -22,5 +22,7 @@ namespace Futbol.SeasonsAPI.Models
         public IEnumerable<short> Years { get; set; }
 
         public IEnumerable<string> Delegates { get; set; }
+
+        public string Abbr { get; set; }
     }
 }

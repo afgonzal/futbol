@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.Lambda.Core;
 using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.Services;
@@ -16,13 +15,13 @@ namespace Futbol.SeasonsAPI.Controllers
 {
     [Route("api/teams")]
     [ApiController]
-    public class TeamsControllers : ControllerBase
+    public class TeamsController : ControllerBase
     {
         private readonly ITeamsService _teamsService;
         private readonly IMapper _mapper;
-        private readonly ILogger<TeamsControllers> _logger;
+        private readonly ILogger<TeamsController> _logger;
 
-        public TeamsControllers(ITeamsService teamsService, IMapper mapper, ILogger<TeamsControllers> logger)
+        public TeamsController(ITeamsService teamsService,  IMapper mapper, ILogger<TeamsController> logger)
         {
             _teamsService = teamsService;
             _mapper = mapper;
@@ -65,7 +64,7 @@ namespace Futbol.SeasonsAPI.Controllers
         {
             try
             {
-                await _teamsService.BulkAddTeams(_mapper.Map<IEnumerable<Team>>(newTeams));
+                await _teamsService.BulkAddTeamsAsync(_mapper.Map<IEnumerable<Team>>(newTeams));
                 _logger.LogDebug($"Teams Created: {newTeams.Count()} \n {JsonConvert.SerializeObject(newTeams.Select(team => new {Year = team.Year, Name = team.Name}))}");
                 return Ok();
             }
@@ -73,6 +72,35 @@ namespace Futbol.SeasonsAPI.Controllers
             {
                 _logger.LogError($"Error bulk adding teams.", ex);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error adding teams.");
+            }
+        }
+        [HttpGet("stats/{year:int}/{season:int}")]
+        public async Task<IActionResult?> GetSeasonTeamsStats([FromRoute]short year, [FromRoute]byte season)
+        {
+            try
+            {
+                var stats = await _teamsService.GetSeasonTeamsStatsAsync(year, season);
+                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting teams stats {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
+            }
+        }
+
+        [HttpGet("{teamId:int}/{year:int}/{season:int}/matches")]
+        public async Task<IActionResult?> GetTeamSeasonMatches([FromRoute]short year, [FromRoute] byte season, [FromRoute] int teamId)
+        {
+            try
+            {
+                var matches = await _teamsService.GetTeamSeasonMatchesAsync(teamId, year, season);
+                return Ok(_mapper.Map<IEnumerable<MatchModel>>(matches));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting team {teamId} matches {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team matches.");
             }
         }
     }

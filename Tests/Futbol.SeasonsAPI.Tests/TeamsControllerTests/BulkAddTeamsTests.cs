@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Castle.Core.Logging;
 using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.Services;
 using Futbol.SeasonsAPI.Controllers;
@@ -23,7 +21,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
     {
         private Mock<ITeamsService> _service;
         private IMapper _mapper;
-        private Mock<ILogger<TeamsControllers>> _logger;
+        private Mock<ILogger<TeamsController>> _logger;
 
         [SetUp]
         public void SetUp()
@@ -34,20 +32,20 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
                 cfg.AddProfile(new ModelMappingProfile());
             });
             _mapper = mockMapper.CreateMapper();
-            _logger = new Mock<ILogger<TeamsControllers>>();
+            _logger = new Mock<ILogger<TeamsController>>();
         }
 
         [Test]
         public async Task Ok_Success()
         {
-            var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
+            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
             var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IActionResult>(result);
             Assert.IsInstanceOf<OkResult>(result);
 
-            _service.Verify(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>()), Times.Once);
+            _service.Verify(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
         }
@@ -55,8 +53,8 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         [Test]
         public async Task ServiceFail_Return500()
         {
-            _service.Setup(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
-            var controller = new TeamsControllers(_service.Object, _mapper, _logger.Object);
+            _service.Setup(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>())).ThrowsAsync(new DataException());
+            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
             var result = await controller.BulkAdd(MockedTeams());
 
             Assert.IsNotNull(result);
@@ -66,7 +64,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
             Assert.IsNotNull(((ObjectResult)result).Value);
             Assert.IsNotEmpty(((ObjectResult)result).Value.ToString());
 
-            _service.Verify(x => x.BulkAddTeams(It.IsAny<IEnumerable<Team>>()), Times.Once);
+            _service.Verify(x => x.BulkAddTeamsAsync(It.IsAny<IEnumerable<Team>>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
         }

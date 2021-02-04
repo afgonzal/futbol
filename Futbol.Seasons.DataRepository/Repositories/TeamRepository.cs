@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Futbol.Seasons.DataRepository.DataEntities;
 using Microsoft.Extensions.Configuration;
 
 namespace Futbol.Seasons.DataRepository.Repositories
 {
-    public interface ITeamRepository : IRepository<Team>
+    public interface ITeamRepository : IRepository<TeamProfile>
     {
-        Task<List<Team>> GetYearTeamsAsync(short year);
-        Task DeleteTeamsAsync(IEnumerable<Team> teams);
+        Task<List<TeamProfile>> GetYearTeamsAsync(short year);
+
     }
-    public class TeamRepository : Repository<Team>, ITeamRepository
+    public class TeamRepository : Repository<TeamProfile>, ITeamRepository
     {
         private const string TeamsTableName = "Teams";
         public TeamRepository(IConfiguration config) : base(config, TeamsTableName)
@@ -21,18 +19,12 @@ namespace Futbol.Seasons.DataRepository.Repositories
         }
 
 
-        public Task<List<Team>> GetYearTeamsAsync(short year)
+        public Task<List<TeamProfile>> GetYearTeamsAsync(short year)
         {
-          
-            var result = _context.QueryAsync<Team>(year);
-            return result.GetRemainingAsync();
+
+            var query = Context.QueryAsync<TeamProfile>(year, QueryOperator.BeginsWith, new string[] {"Profile#"});
+            return query.GetRemainingAsync();
         }
 
-        public Task DeleteTeamsAsync(IEnumerable<Team> teams)
-        {
-            var batch = _context.CreateBatchWrite<Team>();
-            batch.AddDeleteItems(teams);
-            return batch.ExecuteAsync();
-        }
     }
 }

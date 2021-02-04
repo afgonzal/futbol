@@ -21,6 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.Services", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.BusinessEntities", "Backend\Futbol.Seasons.BusinessEntities\Futbol.Seasons.BusinessEntities.csproj", "{689832F5-F191-47CC-A046-571E85F8D6D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Futbol.Seasons.StatsStream", "Backend\Futbol.Seasons.StatsStream\Futbol.Seasons.StatsStream.csproj", "{49389530-D745-415B-A8B8-0078B4375877}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Futbol.Seasons.StatsStream.Tests", "Tests\Futbol.Seasons.StatsStream.Tests\Futbol.Seasons.StatsStream.Tests.csproj", "{021442F3-8DB8-4320-885D-0A96A2A5FFD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{689832F5-F191-47CC-A046-571E85F8D6D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{689832F5-F191-47CC-A046-571E85F8D6D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{689832F5-F191-47CC-A046-571E85F8D6D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49389530-D745-415B-A8B8-0078B4375877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49389530-D745-415B-A8B8-0078B4375877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49389530-D745-415B-A8B8-0078B4375877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49389530-D745-415B-A8B8-0078B4375877}.Release|Any CPU.Build.0 = Release|Any CPU
+		{021442F3-8DB8-4320-885D-0A96A2A5FFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{021442F3-8DB8-4320-885D-0A96A2A5FFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{021442F3-8DB8-4320-885D-0A96A2A5FFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{021442F3-8DB8-4320-885D-0A96A2A5FFD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +73,8 @@ Global
 		{6D72D1FE-8FA6-49F1-BBCC-DCC4898A2851} = {72DCF99D-F29A-4DA6-9075-D47ED8886464}
 		{93E3AAB2-7EF9-4AD7-96F5-0EDE0EC27786} = {CE847633-F7CD-4E8C-A619-F37923E70232}
 		{689832F5-F191-47CC-A046-571E85F8D6D4} = {CE847633-F7CD-4E8C-A619-F37923E70232}
+		{49389530-D745-415B-A8B8-0078B4375877} = {CE847633-F7CD-4E8C-A619-F37923E70232}
+		{021442F3-8DB8-4320-885D-0A96A2A5FFD7} = {72DCF99D-F29A-4DA6-9075-D47ED8886464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CCBFB91D-B5DB-4E66-BB44-2EEAB64905F3}

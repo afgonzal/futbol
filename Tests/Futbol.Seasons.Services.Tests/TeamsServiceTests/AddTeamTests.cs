@@ -7,7 +7,7 @@ using Futbol.Seasons.DataRepository.Repositories;
 using Moq;
 using NUnit.Framework;
 
-namespace Futbol.Seasons.Services.Tests.TeamServiceTests
+namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 {
     [TestFixture]
     public class AddTeamTests
@@ -29,20 +29,20 @@ namespace Futbol.Seasons.Services.Tests.TeamServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new TeamsService(_repository.Object, _mapper);
+            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
             await service.AddTeamAsync(MockedTeam());
-            _repository.Verify(x => x.AddAsync(It.IsAny<Team>()),Times.Once);
+            _repository.Verify(x => x.AddAsync(It.IsAny<TeamProfile>()),Times.Once);
         }
 
         [Test]
         public void RepositoryError_ThrowException()
         {
-            _repository.Setup(x => x.AddAsync(It.IsAny<Team>())).ThrowsAsync(new DataException());
+            _repository.Setup(x => x.AddAsync(It.IsAny<TeamProfile>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(_repository.Object, _mapper);
+            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.AddTeamAsync(MockedTeam()));
 
-            _repository.Verify(x => x.AddAsync(It.IsAny<Team>()), Times.Once);
+            _repository.Verify(x => x.AddAsync(It.IsAny<TeamProfile>()), Times.Once);
         }
 
         private BusinessEntities.Team MockedTeam()

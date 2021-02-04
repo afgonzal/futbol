@@ -17,6 +17,8 @@ namespace Futbol.Seasons.DataRepository
 
         Task<List<TEntity>> QueryBetweenKeysAsync(object hashKey, object sortKeyFrom, object sortKeyTo);
 
-        Task BatchAddAsync(IEnumerable<TEntity> entities);
+        Task BatchUpsertAsync(IEnumerable<TEntity> entities);
+
+        Task BatchDeleteAsync(IEnumerable<TEntity> entities);
     }
 }
