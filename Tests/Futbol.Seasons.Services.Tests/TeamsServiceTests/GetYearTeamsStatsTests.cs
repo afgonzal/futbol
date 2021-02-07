@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.DataRepository.Repositories;
+using Futbol.Seasons.Services.Tests.MatchesServiceTests;
 using Moq;
 using NUnit.Framework;
 
@@ -39,7 +40,12 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 
             Assert.NotNull(result);
             Assert.IsInstanceOf<IEnumerable<BusinessEntities.TeamSeasonStats>>(result);
-            
+            Assert.True(result.Any());
+            Assert.AreEqual(5, result.Count());
+            Assert.AreEqual(6, result.First().Pts);
+            Assert.AreEqual(30, result.Last().Pts);
+            Assert.AreEqual(10, result.First().G);
+
             _seasonService.Verify(x => x.GetConfig(It.IsAny<short>()), Times.Once);
             _repository.Verify(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
         }

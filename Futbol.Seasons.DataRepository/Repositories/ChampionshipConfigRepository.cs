@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DocumentModel;
 using Futbol.Seasons.DataRepository.DataEntities;
 using Microsoft.Extensions.Configuration;
 
@@ -21,7 +22,8 @@ namespace Futbol.Seasons.DataRepository.Repositories
         public async Task<ChampionshipConfig> GetYearConfig(short year)
         {
             var championship = GetByKeyAsync(year, "Championship");
-            var yearSeasons = _seasonsRepository.QueryById(year);
+            var yearSeasons =
+                _seasonsRepository.QueryByKeysAsync(year, new string[] {"Season#"}, QueryOperator.BeginsWith);
             await Task.WhenAll(new Task[] {championship, yearSeasons});
 
             //remove seasons from year that don't belong to championship, ie summer league etc

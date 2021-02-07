@@ -15,8 +15,8 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         [DynamoDBProperty]
         public string Name { get; set; }
 
-        [DynamoDBProperty]
-        public IEnumerable<byte> SeasonsIds{ get; set; }
+        [DynamoDBProperty("Seasons")]
+        public List<byte> SeasonsIds{ get; set; }
 
         [DynamoDBIgnore]
         public IEnumerable<SeasonConfig> Seasons { get; set; }

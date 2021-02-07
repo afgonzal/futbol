@@ -80,7 +80,7 @@ namespace Futbol.Seasons.DataRepository
             return keyProperty.GetValue(lastItem, null);
         }
 
-        protected Task<List<TEntity>> QueryByKeysAsync(object hashKey, IEnumerable<object> queryKeys, QueryOperator queryOperator)
+        public Task<List<TEntity>> QueryByKeysAsync(object hashKey, IEnumerable<object> queryKeys, QueryOperator queryOperator)
         {
             var query = Context.QueryAsync<TEntity>(hashKey, queryOperator, queryKeys);
             return query.GetRemainingAsync();

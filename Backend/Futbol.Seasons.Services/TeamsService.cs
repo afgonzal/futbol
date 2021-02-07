@@ -92,7 +92,8 @@ namespace Futbol.Seasons.Services
                 teamsStats.AddRange(_mapper.Map<IEnumerable<TeamSeasonStats>>(seasonStats));
             }
 
-            return teamsStats;
+            var stats = teamsStats.GroupBy(ts => ts.Id).Select(ts => ts.Aggregate((x, y) => x + y)); ;
+            return stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF);
         }
 
         public async Task<TeamSeasonStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName)
