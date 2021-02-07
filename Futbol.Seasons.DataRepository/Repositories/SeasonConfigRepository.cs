@@ -9,8 +9,8 @@ namespace Futbol.Seasons.DataRepository.Repositories
 
     public class SeasonConfigRepository : Repository<SeasonConfig>, ISeasonConfigRepository
     {
-        private const string TeamsTableName = "Seasons";
-        public SeasonConfigRepository(IConfiguration config) : base(config, TeamsTableName)
+        private const string SeasonsTableName = "Seasons";
+        public SeasonConfigRepository(IConfiguration config) : base(config, SeasonsTableName)
         {
         }
     }

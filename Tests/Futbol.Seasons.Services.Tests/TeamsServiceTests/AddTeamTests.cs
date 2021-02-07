@@ -29,7 +29,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             await service.AddTeamAsync(MockedTeam());
             _repository.Verify(x => x.AddAsync(It.IsAny<TeamProfile>()),Times.Once);
         }
@@ -39,7 +39,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.AddAsync(It.IsAny<TeamProfile>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.AddTeamAsync(MockedTeam()));
 
             _repository.Verify(x => x.AddAsync(It.IsAny<TeamProfile>()), Times.Once);

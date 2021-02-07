@@ -15,12 +15,14 @@ namespace Futbol.Seasons.Services
         Task DeleteAllTeamsFromSeasonAsync(short year);
         Task BulkAddTeamsAsync(IEnumerable<Team> newTeams);
         Task<IEnumerable<TeamSeasonStats>> GetSeasonTeamsStatsAsync(short year, byte season);
+        Task<IEnumerable<TeamSeasonStats>> GetYearTeamsStatsAsync(short year);
 
         Task<TeamSeasonStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName);
         Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamSeasonStats> stats);
         Task ResetAllTeamStatsFromSeasonAsync(short year, byte season);
 
         Task<TeamSeasonStats> GetTeamSeasonStatsAsync(int teamId, short year, byte season);
+
         Task<IEnumerable<Match>> GetTeamSeasonMatchesAsync(int teamId, short year, byte season);
 
         Task<bool> VerifyTeamSeasonStatsAsync(int teamId, short year, byte season);
@@ -34,16 +36,18 @@ namespace Futbol.Seasons.Services
     public class TeamsService : ITeamsService
     {
         private readonly IMatchesService _matchesService;
+        private readonly ISeasonConfigService _seasonsService;
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamStatsRepository _statsRepository;
         private readonly IMatchRepository _matchRepository;
         private readonly ISeasonConfigService _configService;
         private readonly IMapper _mapper;
 
-        public TeamsService(IMatchesService matchesService, ITeamRepository teamRepository, ITeamStatsRepository statsRepository,
+        public TeamsService(IMatchesService matchesService, ISeasonConfigService seasonsService, ITeamRepository teamRepository, ITeamStatsRepository statsRepository,
             IMatchRepository matchRepository, ISeasonConfigService configService, IMapper mapper)
         {
             _matchesService = matchesService;
+            _seasonsService = seasonsService;
             _teamRepository = teamRepository;
             _statsRepository = statsRepository;
             _matchRepository = matchRepository;
@@ -76,6 +80,19 @@ namespace Futbol.Seasons.Services
         {
             var stats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season);
             return _mapper.Map<IEnumerable<TeamSeasonStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
+        }
+
+        public async Task<IEnumerable<TeamSeasonStats>> GetYearTeamsStatsAsync(short year)
+        {
+            var championship = await _seasonsService.GetConfig(year);
+            var teamsStats = new List<TeamSeasonStats>();
+            foreach (var season in championship.Seasons)
+            {
+                var seasonStats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season.SeasonId);
+                teamsStats.AddRange(_mapper.Map<IEnumerable<TeamSeasonStats>>(seasonStats));
+            }
+
+            return teamsStats;
         }
 
         public async Task<TeamSeasonStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName)
