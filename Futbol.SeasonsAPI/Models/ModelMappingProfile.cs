@@ -26,6 +26,7 @@ namespace Futbol.SeasonsAPI.Models
 
 
             CreateMap<MatchResultRequest, Match>()
+                .ForMember(dest => dest.ScheduledDate, opt => opt.MapFrom(src => src.ScheduledDate))
                 .ForMember(dest => dest.WasPlayed, opt => opt.MapFrom(src => src.HomeScore.HasValue && src.AwayScore.HasValue))
                 .ForMember(dest => dest.Year,
                     opt => opt.MapFrom((src, dest, destMember, context) => (short)context.Items["year"]))

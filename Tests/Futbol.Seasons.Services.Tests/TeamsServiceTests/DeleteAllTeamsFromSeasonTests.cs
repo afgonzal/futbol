@@ -33,7 +33,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams().ToList());
 
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             await service.DeleteAllTeamsFromSeasonAsync(Year);
             _repository.Verify(x => x.BatchDeleteAsync(It.IsAny<IEnumerable<TeamProfile>>()),Times.Once);
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);
@@ -45,7 +45,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams().ToList());
             _repository.Setup(x => x.BatchDeleteAsync(It.IsAny<IEnumerable<TeamProfile>>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllTeamsFromSeasonAsync(Year));
 
             _repository.Verify(x => x.BatchDeleteAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Once);
@@ -57,7 +57,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.DeleteAllTeamsFromSeasonAsync(Year));
 
             _repository.Verify(x => x.BatchDeleteAsync(It.IsAny<IEnumerable<TeamProfile>>()), Times.Never);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DocumentModel;
 
 namespace Futbol.Seasons.DataRepository
 {
@@ -11,6 +12,9 @@ namespace Futbol.Seasons.DataRepository
         Task UpdateAsync(TEntity entity);
         Task<List<TEntity>> QueryById(object id);
         Task<TEntity> GetByKeyAsync(object hashKey, object sortKey);
+
+        Task<List<TEntity>> QueryByKeysAsync(object hashKey, IEnumerable<object> queryKeys,
+            QueryOperator queryOperator);
 
         Task DeleteAsync(object hashKey, object sortKey);
         Task DeleteAsync(object hashKey);

@@ -46,7 +46,7 @@ namespace Futbol.Seasons.Services
             #region Config
 
             CreateMap<DataRepository.DataEntities.SeasonConfig, SeasonConfig>();
-
+            CreateMap<DataRepository.DataEntities.ChampionshipConfig, ChampionshipConfig>();
             #endregion
         }
     }

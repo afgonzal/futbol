@@ -31,7 +31,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         public async Task Ok_Success()
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ReturnsAsync(MockedTeams(Year).ToList());
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             var result = await service.GetYearTeamsAsync(Year);
 
             Assert.NotNull(result);
@@ -45,7 +45,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.GetYearTeamsAsync(It.IsAny<short>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, _repository.Object, null, null, null, _mapper);
+            var service = new TeamsService(null, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetYearTeamsAsync(Year));
 
             _repository.Verify(x => x.GetYearTeamsAsync(It.IsAny<short>()), Times.Once);

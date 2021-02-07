@@ -4,7 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 namespace Futbol.Seasons.DataRepository.DataEntities
 {
     [DynamoDBTable("Seasons")]
-    public class YearConfig
+    public class ChampionshipConfig
     {
         [DynamoDBHashKey]
         public short Year { get; set; }
@@ -12,8 +12,13 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         [DynamoDBRangeKey]
         public string Sk { get; set; }
 
-
         [DynamoDBProperty]
-        public IEnumerable<byte> Seasons{ get; set; }
+        public string Name { get; set; }
+
+        [DynamoDBProperty("Seasons")]
+        public List<byte> SeasonsIds{ get; set; }
+
+        [DynamoDBIgnore]
+        public IEnumerable<SeasonConfig> Seasons { get; set; }
     }
 }

@@ -75,7 +75,7 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
         [HttpGet("stats/{year:int}/{season:int}")]
-        public async Task<IActionResult?> GetSeasonTeamsStats([FromRoute]short year, [FromRoute]byte season)
+        public async Task<IActionResult> GetSeasonTeamsStats([FromRoute]short year, [FromRoute]byte season)
         {
             try
             {
@@ -89,8 +89,23 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
+        [HttpGet("stats/{year:int}")]
+        public async Task<IActionResult> GetYearTeamsStats([FromRoute] short year)
+        {
+            try
+            {
+                var stats = await _teamsService.GetYearTeamsStatsAsync(year);
+                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting teams stats {year}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
+            }
+        }
+
         [HttpGet("{teamId:int}/{year:int}/{season:int}/matches")]
-        public async Task<IActionResult?> GetTeamSeasonMatches([FromRoute]short year, [FromRoute] byte season, [FromRoute] int teamId)
+        public async Task<IActionResult> GetTeamSeasonMatches([FromRoute]short year, [FromRoute] byte season, [FromRoute] int teamId)
         {
             try
             {

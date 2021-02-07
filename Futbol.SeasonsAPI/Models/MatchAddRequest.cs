@@ -35,13 +35,15 @@ namespace Futbol.SeasonsAPI.Models
         public int AwayTeamId { get; set; }
         public string HomeTeamName { get; set; }
         public string AwayTeamName { get; set; }
-
-
+        [JsonPropertyName("sd")]
+        public string ScheduledDate { get; set; }
     }
 
     public class MatchResultRequest : MatchAddRequest
     {
         public byte? HomeScore { get; set; }
         public byte? AwayScore { get; set; }
+      
+      
     }
 }

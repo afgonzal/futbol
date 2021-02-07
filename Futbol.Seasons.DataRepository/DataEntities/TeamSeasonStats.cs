@@ -48,7 +48,7 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public byte L { get; set; }
 
         [DynamoDBProperty]
-        public byte Sanctions { get; set; }
+        public sbyte Sanctions { get; set; }
 
         [DynamoDBProperty]
         public byte GF { get; set; }

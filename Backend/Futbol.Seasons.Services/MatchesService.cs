@@ -77,13 +77,15 @@ namespace Futbol.Seasons.Services
             {
                 if (!matches.ContainsKey(result.HomeTeamId))
                 {
-                    throw new DataException($"Missing match {{year}}#{{season}}#{{round}} {result.HomeTeamId} vs {result.AwayTeamId}.");
+                    throw new DataException($"Missing match {year}#{season}#{round} {result.HomeTeamId} vs {result.AwayTeamId}.");
                 }
 
                 var match = matches[result.HomeTeamId];
                 match.HomeScore = result.HomeScore;
                 match.AwayScore = result.AwayScore;
                 match.WasPlayed = result.WasPlayed;
+                if (result.ScheduledDate.HasValue)
+                    match.ScheduledDate = result.ScheduledDate.Value.ToString("u");
             }
 
             await _matchRepository.BatchUpsertAsync(matches.Values.ToList());
