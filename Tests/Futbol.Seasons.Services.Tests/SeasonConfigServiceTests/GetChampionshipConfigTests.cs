@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -58,7 +59,7 @@ namespace Futbol.Seasons.Services.Tests.SeasonConfigServiceTests
         {
             return new DataRepository.DataEntities.ChampionshipConfig
             {
-                Name = "Clausura", SeasonsIds = new byte[] {1, 2}, Year = Year,
+                Name = "Clausura", SeasonsIds = new List<byte> {1, 2}, Year = Year,
                 Seasons = Enumerable.Range(1, 2).Select(id => new DataRepository.DataEntities.SeasonConfig
                     {Name = $"S{id}", SeasonId = (byte)id, RoundsCount = 3, Year = Year})
             };

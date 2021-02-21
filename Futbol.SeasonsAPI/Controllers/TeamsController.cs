@@ -100,7 +100,22 @@ namespace Futbol.SeasonsAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting teams stats {year}.", ex);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting year team stats.");
+            }
+        }
+
+        [HttpPost("stats/historic")]
+        public async Task<IActionResult> GetYearTeamsStats([FromBody] short[] years)
+        {
+            try
+            {
+                var stats = await _teamsService.GetHistoricTeamsStatsAsync(years);
+                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting historic teams stats {years}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting historic team stats.");
             }
         }
 
