@@ -15,7 +15,7 @@ using NUnit.Framework;
 namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
 {
     [TestFixture]
-    public class ProcessStreamRecordAsyncModifyTests
+    public partial class ProcessStreamRecordTests
     {
         private Mock<ITeamsService> _teamsService;
         private Mock<IMatchesService> _matchesService;
@@ -236,8 +236,8 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
             {
                 Dynamodb = new StreamRecord
                 {
-                    NewImage = Document.FromJson(newMatchJson).ToAttributeMap(),
-                    OldImage = Document.FromJson(oldMatchJson).ToAttributeMap(),
+                    NewImage = newMatchJson != null ? Document.FromJson(newMatchJson).ToAttributeMap() : null,
+                    OldImage = oldMatchJson != null ? Document.FromJson(oldMatchJson).ToAttributeMap() : null,
                     Keys = Document.FromJson(KeysJson()).ToAttributeMap(),
                 },
                 EventName = OperationType.MODIFY

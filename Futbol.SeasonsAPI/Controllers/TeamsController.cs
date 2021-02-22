@@ -133,5 +133,6 @@ namespace Futbol.SeasonsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team matches.");
             }
         }
+
     }
 }

@@ -16,6 +16,7 @@ namespace Futbol.Seasons.StatsStream
     {
         Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context);
     }
+
     public class TeamsStatsAggregationService : ITeamsStatsAggregationService
     {
         private readonly ITeamsService _teamsService;
@@ -40,37 +41,36 @@ namespace Futbol.Seasons.StatsStream
             }
         }
 
-
-        public async Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
+        private async Task ProcessModify(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
         {
-            context.Logger.LogLine($"Process Stream Match result keys:{Document.FromAttributeMap(record.Dynamodb.Keys).ToJson()}.");
+            var oldResult =
+                JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document
+                    .FromAttributeMap(record.Dynamodb.OldImage).ToJson());
+            var newResult =
+                JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document
+                    .FromAttributeMap(record.Dynamodb.NewImage).ToJson());
+            context.Logger.LogLine(
+                $"Process Stream Match old:{Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson()}.");
+            context.Logger.LogLine(
+                $"Process Stream Match new:{Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson()}.");
 
-            if (record.EventName != OperationType.MODIFY)
-            {
-                context.Logger.LogLine($"Process Stream {record.EventName}.");
-                return;
-            }
-
-            context.Logger.LogLine($"Process Stream Match old:{Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson()}.");
-            context.Logger.LogLine($"Process Stream Match new:{Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson()}.");
-
-            var oldResult = JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson());
-            var newResult = JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson());
-
-
-            var homeStats = await _teamsService.GetTeamSeasonStatsAsync(oldResult.HomeTeamId, oldResult.Year, oldResult.Season);
-            var awayStats = await _teamsService.GetTeamSeasonStatsAsync(oldResult.AwayTeamId, oldResult.Year, oldResult.Season);
+            var homeStats =
+                await _teamsService.GetTeamSeasonStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season);
+            var awayStats =
+                await _teamsService.GetTeamSeasonStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season);
 
             if (homeStats == null)
             {
-                context.Logger.LogLine($"Team stats not found for team {oldResult.HomeTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                context.Logger.LogLine(
+                    $"Team stats not found for team {oldResult.HomeTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
                 homeStats = await _teamsService.AddTeamStatsAsync(oldResult.HomeTeamId,
                     oldResult.Year, oldResult.Season, oldResult.HomeTeamName);
             }
 
             if (awayStats == null)
             {
-                context.Logger.LogLine($"Team stats not found for team {oldResult.AwayTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                context.Logger.LogLine(
+                    $"Team stats not found for team {oldResult.AwayTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
                 awayStats = await _teamsService.AddTeamStatsAsync(oldResult.AwayTeamId,
                     oldResult.Year, oldResult.Season, oldResult.AwayTeamName);
             }
@@ -80,34 +80,166 @@ namespace Futbol.Seasons.StatsStream
 
             SetYearSeason(newResult.Year, newResult.Season);
 
-            
+
             if (!oldResult.WasPlayed && newResult.WasPlayed) //just add points
             {
                 context.Logger.LogLine($"Set new result {newResult.MatchId}.");
                 SetNewResult(newResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
+                    homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
+                    awayStats);
             }
-            else if (oldResult.WasPlayed && newResult.WasPlayed)//first remove points then add
+            else if (oldResult.WasPlayed && newResult.WasPlayed) //first remove points then add
             {
                 context.Logger.LogLine($"Replace result {newResult.MatchId}.");
                 RemoveOldResult(oldResult, homeStats, awayStats);
                 SetNewResult(newResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
+                    homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
+                    awayStats);
             }
             else if (oldResult.WasPlayed && !newResult.WasPlayed) //remove points
             {
                 context.Logger.LogLine($"Remove result {newResult.MatchId}.");
-                RemoveOldResult(oldResult, homeStats,awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season, homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season, awayStats);
+                RemoveOldResult(oldResult, homeStats, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
+                    homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
+                    awayStats);
             }
             else //do nothing, no change
             {
                 context.Logger.LogLine($"No change in result {newResult.MatchId}.");
             }
         }
+
+        private async Task ProcessInsert(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
+        {
+            var newResult =
+                JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document
+                    .FromAttributeMap(record.Dynamodb.NewImage).ToJson());
+       
+            context.Logger.LogLine(
+                $"Process Stream Match new:{Document.FromAttributeMap(record.Dynamodb.NewImage).ToJson()}.");
+
+            if (newResult.WasPlayed)
+            {
+                var homeStats =
+                    await _teamsService.GetTeamSeasonStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season);
+                var awayStats =
+                    await _teamsService.GetTeamSeasonStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season);
+
+                if (homeStats == null)
+                {
+                    context.Logger.LogLine(
+                        $"Team stats not found for team {newResult.HomeTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                    homeStats = await _teamsService.AddTeamStatsAsync(newResult.HomeTeamId,
+                        newResult.Year, newResult.Season, newResult.HomeTeamName);
+                }
+
+                if (awayStats == null)
+                {
+                    context.Logger.LogLine(
+                        $"Team stats not found for team {newResult.AwayTeamId} processing {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}. \n Stats will be generated.");
+                    awayStats = await _teamsService.AddTeamStatsAsync(newResult.AwayTeamId,
+                        newResult.Year, newResult.Season, newResult.AwayTeamName);
+                }
+
+                if (!newResult.HomeScore.HasValue || !newResult.AwayScore.HasValue)
+                {
+                    context.Logger.LogLine(
+                        $"Match is invalid, match played but no score {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}.");
+                    throw new DataException("Unable to process record, invalid operation for match.");
+                }
+
+                SetYearSeason(newResult.Year, newResult.Season);
+
+                context.Logger.LogLine($"Set new result {newResult.MatchId}.");
+                SetNewResult(newResult, homeStats, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
+                    homeStats);
+                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
+                    awayStats);
+            }
+        }
+
+
+
+        private async Task ProcessDelete(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
+        {
+            var deletedResult =
+                JsonConvert.DeserializeObject<DataRepository.DataEntities.Match>(Document
+                    .FromAttributeMap(record.Dynamodb.OldImage).ToJson());
+
+            context.Logger.LogLine(
+                $"Process Stream Match new:{Document.FromAttributeMap(record.Dynamodb.OldImage).ToJson()}.");
+
+            if (deletedResult.WasPlayed)
+            {
+                var homeStats =
+                    await _teamsService.GetTeamSeasonStatsAsync(deletedResult.HomeTeamId, deletedResult.Year, deletedResult.Season);
+                var awayStats =
+                    await _teamsService.GetTeamSeasonStatsAsync(deletedResult.AwayTeamId, deletedResult.Year, deletedResult.Season);
+
+                if (homeStats == null)
+                {
+                    context.Logger.LogLine(
+                        $"Team stats not found for team {deletedResult.HomeTeamId} processing {deletedResult.Year}#{deletedResult.Season}#{deletedResult.Round}#{deletedResult.MatchId}. \n Stats will be generated.");
+                    homeStats = await _teamsService.AddTeamStatsAsync(deletedResult.HomeTeamId,
+                        deletedResult.Year, deletedResult.Season, deletedResult.HomeTeamName);
+                }
+
+                if (awayStats == null)
+                {
+                    context.Logger.LogLine(
+                        $"Team stats not found for team {deletedResult.AwayTeamId} processing {deletedResult.Year}#{deletedResult.Season}#{deletedResult.Round}#{deletedResult.MatchId}. \n Stats will be generated.");
+                    awayStats = await _teamsService.AddTeamStatsAsync(deletedResult.AwayTeamId,
+                        deletedResult.Year, deletedResult.Season, deletedResult.AwayTeamName);
+                }
+
+                if (!deletedResult.HomeScore.HasValue || !deletedResult.AwayScore.HasValue)
+                {
+                    context.Logger.LogLine(
+                        $"Match is invalid, match played but no score {deletedResult.Year}#{deletedResult.Season}#{deletedResult.Round}#{deletedResult.MatchId}.");
+                    throw new DataException("Unable to process record, invalid operation for match.");
+                }
+
+                SetYearSeason(deletedResult.Year, deletedResult.Season);
+
+                context.Logger.LogLine($"Remove result {deletedResult.MatchId}.");
+                RemoveOldResult(deletedResult, homeStats, awayStats);
+                await _teamsService.UpdateTeamStatsAsync(deletedResult.HomeTeamId, deletedResult.Year, deletedResult.Season,
+                    homeStats);
+                await _teamsService.UpdateTeamStatsAsync(deletedResult.AwayTeamId, deletedResult.Year, deletedResult.Season,
+                    awayStats);
+            }
+        }
+
+        public Task ProcessStreamRecordAsync(DynamoDBEvent.DynamodbStreamRecord record, ILambdaContext context)
+        {
+            context.Logger.LogLine(
+                $"Process Stream Match result keys:{Document.FromAttributeMap(record.Dynamodb.Keys).ToJson()}.");
+
+
+            if (record.EventName == OperationType.MODIFY)
+            {
+                return ProcessModify(record, context);
+            } else if (record.EventName == OperationType.INSERT)
+            {
+                return ProcessInsert(record, context);
+            } else if (record.EventName == OperationType.REMOVE)
+            {
+               return ProcessDelete(record, context);
+            }
+
+            context.Logger.LogLine($"Don't process Stream {record.EventName}.");
+            return Task.CompletedTask;
+        }
+
+
+
 
 
         /// <summary>
@@ -203,6 +335,7 @@ namespace Futbol.Seasons.StatsStream
 
             if ((_year.HasValue && _season.HasValue) && (newResult.Year != _year.Value || newResult.Season != _season.Value))
             {
+                logger.LogLine($"Que mal {_year.GetValueOrDefault()}, {_season.GetValueOrDefault()}");
                 logger.LogLine($"Match has invalid year or season {newResult.Year}#{newResult.Season}#{newResult.Round}#{newResult.MatchId}.");
                 return false;
             }

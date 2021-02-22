@@ -5,82 +5,55 @@
 			"eventName": "MODIFY",
 			"eventVersion": "1.0",
 			"eventSource": "aws:dynamodb",
-			"awsRegion": "{region}",
+			"awsRegion": "sa-east-1",
 			"dynamodb": {
 				"Keys": {
 					"YearSeasonRound": {
-						"S": "2020#2#1"
+						"S": "2019#3#1"
 					},
 					"MatchId": {
-						"N": 1
+						"N": "1"
 					}
 				},
+				
 				"NewImage": {
-					"YearSeasonRound": {
-						"S": "2020#2#1"
-					},
-					"HomeScore": {
-						"N": 4
-					},
-					"AwayScore": {
-						"N": 3
-					},
-					"MatchId": {
-						"N": 1
-					},
-					"HomeTeamId": {
-						"N": 12
-					},
-					"AwayTeamId": {
-						"N": 4
-					},
-					"AwayTeamName": {
-						"S": "Montreal Impact"
-					},
-					"HomeTeamName": {
-						"S": "Los Angeles FC"
-					},
-					"WasPlayed": {
-						"BOOL": 0
-					},
+					"AwayScore": { "N": "1"} ,
+					"HomePenalties": { "N": "2"},
+					"HomeTeamId": { "N": "7"},
+					"ScheduledDate": {"S": "2019-07-18 13:00:00Z"},
+					"AwayTeamId": { "N": "13"},
+					"AwayTeamName": {"S":"Rosario"},
+					"HomeTeamName": {"S":"Banfield"},
+					"YearSeasonRound": {"S":"2019#3#1"},
+					"HomeScore": { "N": "1"},
+					"AwayPenalties": { "N": "3"},
+					"HomeTeamIdYearSeason": {"S":"7#2019#3"},
+					"MatchId": { "N": "1"},
+					"AwayTeamIdYearSeason":{"S": "13#2019#3"},
+					"WasPlayed": { "N": "1"}
 				},
+				
 				"OldImage": {
-					"YearSeasonRound": {
-						"S": "2020#2#1"
-					},
-					"HomeScore": {
-						"N": 3
-					},
-					"AwayScore": {
-						"N": 3
-					},
-					"MatchId": {
-						"N": 1
-					},
-					"HomeTeamId": {
-						"N": 12
-					},
-					"AwayTeamId": {
-						"N": 4
-					},
-					"AwayTeamName": {
-						"S": "Montreal Impact"
-					},
-					"HomeTeamName": {
-						"S": "Los Angeles FC"
-					},
-					"WasPlayed": {
-						"BOOL": 1
-					},
+					"AwayScore": { "N": "1"},
+					"HomePenalties": { "N": "2"},
+					"HomeTeamId": { "N": "7"},
+					"ScheduledDate": {"S":"2019-07-18 13:00:00Z"},
+					"AwayTeamId": { "N": "13"},
+					"AwayTeamName": {"S":"Rosario"},
+					"HomeTeamName": {"S":"Banfield"},
+					"YearSeasonRound": {"S":"2019#3#1"},
+					"HomeScore": { "N": "1"},
+					"AwayPenalties": { "N": "3"},
+					"HomeTeamIdYearSeason": {"S":"7#2019#3"},
+					"MatchId": { "N": "1"},
+					"AwayTeamIdYearSeason": {"S":"13#2019#3"},
+					"WasPlayed": { "N": "0"}
 				},
 				"SequenceNumber": "222",
 				"SizeBytes": 59,
 				"StreamViewType": "NEW_AND_OLD_IMAGES"
 			},
-			"eventSourceARN": "arn:aws:dynamodb:us-east-1:148236529865:table/Matches/stream/2021-02-01T18:44:07.922"
+			"eventSourceARN": "arn:aws:dynamodb:us-east-1:148236529865:table/Matches/stream/2021-02-03T11:50:12.991"
 		}
 	]
 }
-
-
-

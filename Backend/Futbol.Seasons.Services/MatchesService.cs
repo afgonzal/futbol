@@ -25,7 +25,7 @@ namespace Futbol.Seasons.Services
     {
         private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
-        private ISeasonConfigService _seasonService;
+        private readonly ISeasonConfigService _seasonService;
 
         public MatchesService(IMatchRepository matchRepository, ISeasonConfigService seasonService, IMapper mapper)
         {
@@ -110,5 +110,7 @@ namespace Futbol.Seasons.Services
                 await _matchRepository.BatchUpsertAsync(matches);
             }
         }
+
+       
     }
 }

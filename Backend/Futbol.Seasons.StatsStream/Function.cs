@@ -21,7 +21,7 @@ namespace Futbol.Seasons.StatsStream
         }
         public void FunctionHandler(DynamoDBEvent dynamoEvent, ILambdaContext context)
         {
-            context.Logger.LogLine($"Beginning to process {dynamoEvent.Records.Count} records...");
+            context.Logger.LogLine($"Beginning to process {dynamoEvent.Records.Count} records... ");
 
             foreach (var record in dynamoEvent.Records)
             {

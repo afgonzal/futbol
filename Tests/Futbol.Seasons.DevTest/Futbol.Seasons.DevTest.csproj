@@ -25,4 +25,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Backend\Futbol.Seasons.BusinessEntities\Futbol.Seasons.BusinessEntities.csproj" />
+    <ProjectReference Include="..\..\Futbol.Seasons.DataRepository\Futbol.Seasons.DataRepository.csproj" />
+  </ItemGroup>
 </Project>

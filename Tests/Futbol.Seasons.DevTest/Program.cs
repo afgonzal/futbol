@@ -17,6 +17,10 @@ namespace Futbol.Seasons.DevTest
             //var snsClient = new AmazonSimpleNotificationServiceClient(credentials, region);
 
             //await host.RunAsync();
+
+            var m = new Futbol.Seasons.DataRepository.DataEntities.Match() {YearSeasonRound = "2019#3#1"};
+            var r = m.Round;
+
         }
 
         //static IHostBuilder CreateHostBuilder(string[] args) =>
