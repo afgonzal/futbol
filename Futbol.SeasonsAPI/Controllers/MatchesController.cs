@@ -137,5 +137,15 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
+        [HttpPost("{round:int}/moveDate")]
+        public async Task<IActionResult> MoveRoundDate([FromRoute] short year, [FromRoute] byte season,
+            [FromRoute] byte round, [FromQuery] DateTimeOffset newDate, [FromQuery]bool keepTimes)
+        {
+            if (keepTimes)
+                newDate = newDate.Date;
+            await _matchesService.MoveRoundAsync(year, season, round, newDate, keepTimes);
+            return Ok();
+        }
+
     }
 }

@@ -19,6 +19,7 @@ namespace Futbol.Seasons.Services
         Task BulkAddMatches(IList<Match> newMatches);
         Task SetRoundResults(short year, byte season, byte round, IList<Match> matchesResults);
         Task ResetAllMatchesFromSeasonAsync(short year, byte season);
+        Task MoveRoundAsync(short year, byte season, byte round, DateTimeOffset newDate, bool keepTimes);
     }
 
     public class MatchesService : IMatchesService
@@ -111,6 +112,28 @@ namespace Futbol.Seasons.Services
             }
         }
 
-       
+        public async Task MoveRoundAsync(short year, byte season, byte round, DateTimeOffset newDate, bool keepTimes)
+        {
+            var matches = await _matchRepository.GetMatchesAsync(year, season, round);
+            foreach (var match in matches)
+            {
+                if (!match.WasPlayed) //skip already played games
+                {
+                    if (keepTimes)
+                    {
+                        var previousDate = DateTimeOffset.Parse(match.ScheduledDate);
+                        var nextDate = new DateTimeOffset(newDate.Year, newDate.Month, newDate.Day, previousDate.Hour,
+                            previousDate.Minute, previousDate.Second, previousDate.Offset);
+                        match.ScheduledDate = nextDate.ToString("u");
+                    }
+                    else
+                    {
+                        match.ScheduledDate = newDate.ToString("u");
+                    }
+                }
+            }
+
+            await _matchRepository.BatchUpsertAsync(matches);
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace Futbol.Seasons.Services
         Task UpdateTeamStatsAsync(int teamId, short year, byte season, TeamSeasonStats stats);
 
         Task ReprocessSeasonStatsAsync(short year, byte season);
+        Task<bool> VerifySeasonFixtureAsync(short year, byte season);
     }
 
     public class TeamsService : ITeamsService
@@ -177,12 +178,15 @@ namespace Futbol.Seasons.Services
             foreach (var team in teams)
             {
                 var stats = await GetTeamSeasonStatsAsync(team.Id, year, season);
-                totals.G += stats.G;
-                totals.W += stats.W;
-                totals.L += stats.L;
-                totals.D += stats.D;
-                totals.GF += stats.GF;
-                totals.GA += stats.GA;
+                if (stats != null)
+                {
+                    totals.G += stats.G;
+                    totals.W += stats.W;
+                    totals.L += stats.L;
+                    totals.D += stats.D;
+                    totals.GF += stats.GF;
+                    totals.GA += stats.GA;
+                }
             }
 
             if (totals.GA != totals.GF)
@@ -260,6 +264,29 @@ namespace Futbol.Seasons.Services
             }
 
             await BulkUpsertTeamStats(year, season, stats.Values);
+        }
+
+        public async Task<bool> VerifySeasonFixtureAsync(short year, byte season)
+        {
+            var teams = (await GetYearTeamsAsync(year)).ToList();
+
+            var stats = new byte[teams.Count()];
+
+            foreach (var team in teams)
+            {
+                var seasonMatches = await _matchRepository.GetTeamSeasonMatches(year, season, team.Id);
+                stats[team.Id - 1] = (byte)seasonMatches.Count();
+            }
+
+            var teamId = 1;
+            do
+            {
+                if (stats[teamId] != stats[teamId + 1])
+                    return false;
+                teamId++;
+            } while (teamId < teams.Count()-1);
+
+            return true;
         }
     }
 }

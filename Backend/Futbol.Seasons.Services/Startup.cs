@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Futbol.Seasons.Services
@@ -14,6 +11,8 @@ namespace Futbol.Seasons.Services
             services.AddScoped<ITeamsService, TeamsService>();
             services.AddScoped<IMatchesService, MatchesService>();
             services.AddScoped<ISeasonConfigService, SeasonConfigService>();
+            services.AddScoped<IPartnerService, PartnersService>();
+            services.AddScoped<ISecurityService, SecurityService>();
 
         }
     }

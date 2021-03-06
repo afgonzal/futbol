@@ -85,6 +85,11 @@ namespace Futbol.SeasonsAPI.Controllers
                 if (!isSeasonValid)
                     return Ok(new { Valid = false, Season = season });
 
+                //now validate that every team fixture is same amount of matches
+                isSeasonValid = await _teamsService.VerifySeasonFixtureAsync(year, season);
+                
+                if (!isSeasonValid)
+                    return Ok(new { Valid = false, Season = season });
                 return Ok(new {Valid = true});
             }
             catch (Exception ex)
