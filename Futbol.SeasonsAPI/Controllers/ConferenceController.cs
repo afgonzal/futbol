@@ -23,11 +23,11 @@ namespace Futbol.SeasonsAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{conferenceId:int}/stats")]
+        [HttpGet("{conference:int}/stats")]
         public async Task<IActionResult> GetConferenceTeamStats([FromRoute] short year, [FromRoute] byte conference)
         {
             var stats = await _teamsService.GetConferenceTeamsStatsAsync(year, conference);
-            return Ok(_mapper.Map<IEnumerable<TeamStats>>(stats));
+            return Ok(_mapper.Map<IEnumerable<TeamConferenceStats>>(stats));
         }
     }
 }

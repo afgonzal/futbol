@@ -35,6 +35,8 @@ namespace Futbol.Seasons.Services
         Task<bool> VerifySeasonFixtureAsync(short year, byte season);
         Task<TeamConferenceStats> GetTeamConferenceStatsAsync(int teamId, short year, byte conference);
         Task<IEnumerable<TeamConferenceStats>> GetConferenceTeamsStatsAsync(short year, byte conference);
+
+        Task ReprocessConferencesStatsAsync(short year);
     }
 
     public class TeamsService : ITeamsService
@@ -44,19 +46,19 @@ namespace Futbol.Seasons.Services
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamStatsRepository _statsRepository;
         private readonly IMatchRepository _matchRepository;
-        private readonly IConferenceTeamStatsRepository _conferenceRepository;
+        private readonly IConferenceTeamStatsRepository _conferenceStatsRepository;
         private readonly ISeasonConfigService _configService;
         private readonly IMapper _mapper;
 
         public TeamsService(IMatchesService matchesService, ISeasonConfigService seasonsService, ITeamRepository teamRepository, ITeamStatsRepository statsRepository,
-            IMatchRepository matchRepository, IConferenceTeamStatsRepository conferenceRepository, ISeasonConfigService configService, IMapper mapper)
+            IMatchRepository matchRepository, IConferenceTeamStatsRepository conferenceStatsRepository, ISeasonConfigService configService, IMapper mapper)
         {
             _matchesService = matchesService;
             _seasonsService = seasonsService;
             _teamRepository = teamRepository;
             _statsRepository = statsRepository;
             _matchRepository = matchRepository;
-            _conferenceRepository = conferenceRepository;
+            _conferenceStatsRepository = conferenceStatsRepository;
             _configService = configService;
             _mapper = mapper;
         }
@@ -236,7 +238,7 @@ namespace Futbol.Seasons.Services
             {
                 var matches = await _matchesService.GetSeasonRoundMatchesAsync(year, season, round);
 
-                foreach (var match in matches)
+                foreach (var match in matches.Where(m => m.WasPlayed))
                 {
                     var newMatchWinner = match.HomeScore > match.AwayScore ? WhoWon.Home :
                         match.AwayScore > match.HomeScore ? WhoWon.Away : WhoWon.Draw;
@@ -295,15 +297,98 @@ namespace Futbol.Seasons.Services
 
         public async Task<TeamConferenceStats> GetTeamConferenceStatsAsync(int teamId, short year, byte conference)
         {
-            var stats = await _conferenceRepository.GetByKeyAsync(year, $"ConferenceStats#{conference}#{teamId}");
+            var stats = await _conferenceStatsRepository.GetByKeyAsync(year, $"ConferenceStats#{conference}#{teamId}");
             return _mapper.Map<TeamConferenceStats>(stats);
         }
 
         public async Task<IEnumerable<TeamConferenceStats>> GetConferenceTeamsStatsAsync(short year, byte conference)
         {
-            var stats = await _conferenceRepository.GetConferenceTeamsStatsAsync(year, conference);
+            var stats = await _conferenceStatsRepository.GetConferenceTeamsStatsAsync(year, conference);
             return _mapper.Map<IEnumerable<TeamConferenceStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
         }
 
+
+        public async Task ReprocessConferencesStatsAsync(short year)
+        {
+            var conferences = await _configService.GetConferencesConfig(year);
+
+            foreach (var conferenceConfig in conferences)
+            {
+                var stats = (await GetConferenceTeamsStatsAsync(year, conferenceConfig.Id)).ToDictionary(stat => stat.Id,
+                    stat => stat);
+                var teams = (await _teamRepository.GetYearTeamsAsync(year))
+                    .Where(team => team.ConferenceId == conferenceConfig.Id).ToDictionary(team => team.TeamId, team => team);
+                if (stats.Any())
+                {
+                    foreach (var teamStats in stats)
+                    {
+                        teamStats.Value.Reset();
+                    }
+                }
+                else
+                {
+                    foreach (var team in teams.Values)
+                    {
+                        stats.Add(team.TeamId, new TeamConferenceStats {Id = team.TeamId, Name = team.TeamName});
+                    }
+                }
+                
+                foreach (var seasonConfig in conferenceConfig.Seasons)
+                {
+                    for (byte round = 1; round <= seasonConfig.RoundsCount; round++)
+                    {
+                        var matches =
+                            await _matchesService.GetSeasonRoundMatchesAsync(year, seasonConfig.SeasonId, round);
+
+                        foreach (var match in matches.Where(m => m.WasPlayed))
+                        {
+                            if (teams.ContainsKey(match.HomeTeamId) && teams.ContainsKey(match.AwayTeamId) &&
+                                teams[match.HomeTeamId].ConferenceId == teams[match.AwayTeamId].ConferenceId)
+                            {
+
+                                var newMatchWinner = match.HomeScore > match.AwayScore ? WhoWon.Home :
+                                    match.AwayScore > match.HomeScore ? WhoWon.Away : WhoWon.Draw;
+                                var homeStats = stats[match.HomeTeamId];
+                                var awayStats = stats[match.AwayTeamId];
+                                homeStats.G++;
+                                awayStats.G++;
+                                homeStats.GF += match.HomeScore.GetValueOrDefault();
+                                homeStats.GA += match.AwayScore.GetValueOrDefault();
+                                awayStats.GF += match.AwayScore.GetValueOrDefault();
+                                awayStats.GA += match.HomeScore.GetValueOrDefault();
+
+                                switch (newMatchWinner)
+                                {
+                                    case WhoWon.Home:
+                                        homeStats.W++;
+                                        awayStats.L++;
+                                        break;
+                                    case WhoWon.Away:
+                                        homeStats.L++;
+                                        awayStats.W++;
+                                        break;
+                                    case WhoWon.Draw:
+                                        homeStats.D++;
+                                        awayStats.D++;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+                await BulkUpsertTeamConferenceStats(year, conferenceConfig.Id, stats.Values);
+            }
+        }
+
+        public Task BulkUpsertTeamConferenceStats(short year, byte conference, IEnumerable<TeamConferenceStats> stats)
+        {
+            return _conferenceStatsRepository.BatchUpsertAsync(
+                _mapper.Map<IEnumerable<DataRepository.DataEntities.TeamConferenceStats>>(stats, opt =>
+                {
+                    opt.Items["year"] = year;
+                    opt.Items["conference"] = conference;
+                }));
+        }
     }
 }

@@ -23,6 +23,17 @@ namespace Futbol.Seasons.BusinessEntities
         public IEnumerable<SeasonConfig> Seasons { get; set; }
     }
 
+    public class ConferenceConfig
+    {
+        public short Year { get; set; }
+
+        public byte Id { get; set; }
+
+        public string Name { get; set; }
+
+        public IEnumerable<SeasonConfig> Seasons { get; set; }
+    }
+
     public class CurrentSeasonConfig
     {
         public short Year { get; set; }

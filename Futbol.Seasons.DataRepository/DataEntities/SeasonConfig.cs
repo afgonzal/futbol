@@ -24,6 +24,4 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         [DynamoDBProperty] 
         public byte RoundsCount { get; set; }
     }
-
-   
 }

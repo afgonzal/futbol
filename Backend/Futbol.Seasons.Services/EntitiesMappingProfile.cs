@@ -41,6 +41,15 @@ namespace Futbol.Seasons.Services
                 .ForCtorParam("season", opt => opt.MapFrom((src, ctx) => ctx.Items["season"]))
                 .ForCtorParam("teamId", opt => opt.MapFrom((src => src.Id)));
 
+            CreateMap<TeamConferenceStats, DataRepository.DataEntities.TeamConferenceStats>()
+                .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Name))
+                .ForCtorParam("year", opt => opt.MapFrom((src, ctx) => ctx.Items["year"]))
+                .ForCtorParam("conference", opt => opt.MapFrom((src, ctx) => ctx.Items["conference"]))
+                .ForCtorParam("teamId", opt => opt.MapFrom((src => src.Id)));
+
+            CreateMap<DataRepository.DataEntities.TeamConferenceStats, TeamConferenceStats>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TeamId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.TeamName));
             #endregion
 
             #region Config

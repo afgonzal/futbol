@@ -110,10 +110,26 @@ namespace Futbol.SeasonsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error verifying season {year}#{season}.", ex);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error verifying season {year}#{season}.");
+                _logger.LogError($"Error reprocessing season {year}#{season}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error reprocessing season {year}#{season}.");
             }
         }
 
+
+        [HttpPut("{year:int}/conference/reprocess")]
+        public async Task<IActionResult> ReprocessConferences([FromRoute] short year)
+        {
+            try
+            {
+                await _teamsService.ReprocessConferencesStatsAsync(year);
+                _logger.LogInformation($"Conferences reprocessed {year}.");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error reprocessing conferences {year}.", ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error reprocessing conferences {year}.");
+            }
+        }
     }
 }
