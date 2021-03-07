@@ -30,12 +30,12 @@ namespace Futbol.Seasons.Services
 
             #region TeamStats 
 
-            CreateMap<DataRepository.DataEntities.TeamSeasonStats, TeamSeasonStats>()
+            CreateMap<DataRepository.DataEntities.TeamSeasonStats, TeamStats>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TeamId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.TeamName));
 
 
-            CreateMap<TeamSeasonStats, DataRepository.DataEntities.TeamSeasonStats>()
+            CreateMap<TeamStats, DataRepository.DataEntities.TeamSeasonStats>()
                 .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Name))
                 .ForCtorParam("year", opt => opt.MapFrom((src, ctx) => ctx.Items["year"]))
                 .ForCtorParam("season", opt => opt.MapFrom((src, ctx) => ctx.Items["season"]))

@@ -47,9 +47,9 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             _repository.Verify(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<TeamSeasonStats>>()), Times.Once);
         }
 
-        private IEnumerable<BusinessEntities.TeamSeasonStats> MockedStats()
+        private IEnumerable<BusinessEntities.TeamStats> MockedStats()
         {
-            return Enumerable.Range(1, 5).Select(tid => new BusinessEntities.TeamSeasonStats
+            return Enumerable.Range(1, 5).Select(tid => new BusinessEntities.TeamStats
             {
                 Id = tid, Name = $"team{tid}", W=(byte)tid, GF=(byte)tid , GA = (byte)(20-tid), G = (byte)5
             });

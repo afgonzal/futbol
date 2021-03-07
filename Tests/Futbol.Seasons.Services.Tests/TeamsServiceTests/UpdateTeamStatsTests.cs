@@ -49,9 +49,9 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
 
             _repository.Verify(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>()), Times.Once);
         }
-        private TeamSeasonStats MockStats()
+        private TeamStats MockStats()
         {
-            return new TeamSeasonStats {G = 3, W = 2, L = 1, GA = 2, GF = 15};
+            return new TeamStats {G = 3, W = 2, L = 1, GA = 2, GF = 15};
         }
     }
 }

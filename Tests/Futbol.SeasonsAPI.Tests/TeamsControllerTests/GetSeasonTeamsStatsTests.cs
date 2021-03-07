@@ -48,8 +48,8 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
             Assert.IsInstanceOf<IActionResult>(result);
             Assert.IsInstanceOf<OkObjectResult>(result);
             Assert.IsNotNull(((OkObjectResult)result).Value);
-            Assert.IsInstanceOf<IEnumerable<TeamSeasonStats>>(((OkObjectResult)result).Value);
-            Assert.IsTrue(((IEnumerable<TeamSeasonStats>)((OkObjectResult)result).Value).Any());
+            Assert.IsInstanceOf<IEnumerable<TeamStats>>(((OkObjectResult)result).Value);
+            Assert.IsTrue(((IEnumerable<TeamStats>)((OkObjectResult)result).Value).Any());
 
             _service.Verify(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
@@ -74,9 +74,9 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
             _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
         }
 
-        private IEnumerable<TeamSeasonStats> MockedStats()
+        private IEnumerable<TeamStats> MockedStats()
         {
-            return Enumerable.Range(1, 5).Select(id => new TeamSeasonStats
+            return Enumerable.Range(1, 5).Select(id => new TeamStats
                 {Id = id, W = (byte) id, G = 5, GF = (byte) (10 + id)});
         }
 

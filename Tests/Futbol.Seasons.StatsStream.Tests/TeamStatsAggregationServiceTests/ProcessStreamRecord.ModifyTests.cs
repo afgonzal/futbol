@@ -49,7 +49,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Never);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
 
@@ -149,13 +149,13 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Never);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Once);
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Never);
         }
 
         [Test]
         public void AddNewHomeTeamStatError_ThrowException()
         {
-            _teamsService.SetupSequence(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync((TeamSeasonStats)null)
+            _teamsService.SetupSequence(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync((TeamStats)null)
                 .ReturnsAsync(MockedStats());
             _teamsService.Setup(x =>
                     x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
@@ -170,14 +170,14 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Once);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Never);
         }
 
         [Test]
         public void AddAwayTeamStatError_ThrowException()
         {
             _teamsService.SetupSequence(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
-                .ReturnsAsync(MockedStats()).ReturnsAsync((TeamSeasonStats)null);
+                .ReturnsAsync(MockedStats()).ReturnsAsync((TeamStats)null);
             _teamsService
                 .Setup(x =>
                     x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
@@ -192,7 +192,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 x => x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()),
                 Times.Once);
             _teamsService.Verify(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Exactly(2));
-            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamSeasonStats>()), Times.Never);
+            _teamsService.Verify(x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<TeamStats>()), Times.Never);
         }
 
         private string OldMatch(int homeScore, int awayScore, bool wasPlayed = false)
@@ -244,9 +244,9 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
             };
         }
 
-        private TeamSeasonStats MockedStats()
+        private TeamStats MockedStats()
         {
-            return new TeamSeasonStats
+            return new TeamStats
             {
                 Id = 2,
                 Name = $"team",
@@ -258,9 +258,9 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
             };
         }
 
-        private TeamSeasonStats MockedNewStats(int teamId, string name)
+        private TeamStats MockedNewStats(int teamId, string name)
         {
-            return new TeamSeasonStats {Id = teamId, Name = name};
+            return new TeamStats {Id = teamId, Name = name};
         }
     }
 }

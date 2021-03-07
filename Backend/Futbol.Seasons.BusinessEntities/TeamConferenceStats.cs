@@ -2,7 +2,7 @@
 
 namespace Futbol.Seasons.BusinessEntities
 {
-    public class TeamSeasonStats
+    public class TeamConferenceStats
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -40,11 +40,11 @@ namespace Futbol.Seasons.BusinessEntities
             Sanctions = 0;
         }
 
-        public static TeamSeasonStats operator +(TeamSeasonStats a, TeamSeasonStats b)
+        public static TeamConferenceStats operator +(TeamConferenceStats a, TeamConferenceStats b)
         {
             if (a.Id != b.Id)
                 throw new InvalidOperationException("Can't add stats from different teams.");
-            return new TeamSeasonStats
+            return new TeamConferenceStats
             {
                 Id = a.Id, W = (byte) (a.W + b.W), D = (byte) (a.D + b.D), L = (byte) (a.L + b.L), G = (byte) (a.G + b.G),
                 Name = a.Name,

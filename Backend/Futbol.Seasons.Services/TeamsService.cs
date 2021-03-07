@@ -14,25 +14,27 @@ namespace Futbol.Seasons.Services
         Task<IEnumerable<Team>> GetYearTeamsAsync(short year);
         Task DeleteAllTeamsFromSeasonAsync(short year);
         Task BulkAddTeamsAsync(IEnumerable<Team> newTeams);
-        Task<IEnumerable<TeamSeasonStats>> GetSeasonTeamsStatsAsync(short year, byte season);
-        Task<IEnumerable<TeamSeasonStats>> GetYearTeamsStatsAsync(short year);
+        Task<IEnumerable<TeamStats>> GetSeasonTeamsStatsAsync(short year, byte season);
+        Task<IEnumerable<TeamStats>> GetYearTeamsStatsAsync(short year);
 
-        Task<IEnumerable<TeamSeasonStats>> GetHistoricTeamsStatsAsync(IEnumerable<short> years);
-        Task<TeamSeasonStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName);
-        Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamSeasonStats> stats);
+        Task<IEnumerable<TeamStats>> GetHistoricTeamsStatsAsync(IEnumerable<short> years);
+        Task<TeamStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName);
+        Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamStats> stats);
         Task ResetAllTeamStatsFromSeasonAsync(short year, byte season);
 
-        Task<TeamSeasonStats> GetTeamSeasonStatsAsync(int teamId, short year, byte season);
+        Task<TeamStats> GetTeamSeasonStatsAsync(int teamId, short year, byte season);
 
         Task<IEnumerable<Match>> GetTeamSeasonMatchesAsync(int teamId, short year, byte season);
 
         Task<bool> VerifyTeamSeasonStatsAsync(int teamId, short year, byte season);
 
         Task<bool> VerifySeasonStatsAsync(short year, byte season);
-        Task UpdateTeamStatsAsync(int teamId, short year, byte season, TeamSeasonStats stats);
+        Task UpdateTeamStatsAsync(int teamId, short year, byte season, TeamStats stats);
 
         Task ReprocessSeasonStatsAsync(short year, byte season);
         Task<bool> VerifySeasonFixtureAsync(short year, byte season);
+        Task<TeamConferenceStats> GetTeamConferenceStatsAsync(int teamId, short year, byte conference);
+        Task<IEnumerable<TeamConferenceStats>> GetConferenceTeamsStatsAsync(short year, byte conference);
     }
 
     public class TeamsService : ITeamsService
@@ -42,17 +44,19 @@ namespace Futbol.Seasons.Services
         private readonly ITeamRepository _teamRepository;
         private readonly ITeamStatsRepository _statsRepository;
         private readonly IMatchRepository _matchRepository;
+        private readonly IConferenceTeamStatsRepository _conferenceRepository;
         private readonly ISeasonConfigService _configService;
         private readonly IMapper _mapper;
 
         public TeamsService(IMatchesService matchesService, ISeasonConfigService seasonsService, ITeamRepository teamRepository, ITeamStatsRepository statsRepository,
-            IMatchRepository matchRepository, ISeasonConfigService configService, IMapper mapper)
+            IMatchRepository matchRepository, IConferenceTeamStatsRepository conferenceRepository, ISeasonConfigService configService, IMapper mapper)
         {
             _matchesService = matchesService;
             _seasonsService = seasonsService;
             _teamRepository = teamRepository;
             _statsRepository = statsRepository;
             _matchRepository = matchRepository;
+            _conferenceRepository = conferenceRepository;
             _configService = configService;
             _mapper = mapper;
         }
@@ -78,50 +82,50 @@ namespace Futbol.Seasons.Services
             return _teamRepository.BatchUpsertAsync(_mapper.Map<IEnumerable<DataRepository.DataEntities.TeamProfile>>(newTeams));
         }
 
-        public async Task<IEnumerable<TeamSeasonStats>> GetSeasonTeamsStatsAsync(short year, byte season)
+        public async Task<IEnumerable<TeamStats>> GetSeasonTeamsStatsAsync(short year, byte season)
         {
             var stats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season);
-            return _mapper.Map<IEnumerable<TeamSeasonStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
+            return _mapper.Map<IEnumerable<TeamStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
         }
 
-        public async Task<IEnumerable<TeamSeasonStats>> GetYearTeamsStatsAsync(short year)
+        public async Task<IEnumerable<TeamStats>> GetYearTeamsStatsAsync(short year)
         {
             var championship = await _seasonsService.GetConfig(year);
-            var teamsStats = new List<TeamSeasonStats>();
+            var teamsStats = new List<TeamStats>();
             foreach (var season in championship.Seasons)
             {
                 var seasonStats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season.SeasonId);
-                teamsStats.AddRange(_mapper.Map<IEnumerable<TeamSeasonStats>>(seasonStats));
+                teamsStats.AddRange(_mapper.Map<IEnumerable<TeamStats>>(seasonStats));
             }
 
             var stats = teamsStats.GroupBy(ts => ts.Id).Select(ts => ts.Aggregate((x, y) => x + y)); ;
             return stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF);
         }
 
-        public async Task<IEnumerable<TeamSeasonStats>> GetHistoricTeamsStatsAsync(IEnumerable<short> years)
+        public async Task<IEnumerable<TeamStats>> GetHistoricTeamsStatsAsync(IEnumerable<short> years)
         {
-            var teamsStats = new List<TeamSeasonStats>();
+            var teamsStats = new List<TeamStats>();
             foreach (var year in years)
             {
                 var championship = await _seasonsService.GetConfig(year);
                 foreach (var season in championship.Seasons)
                 {
                     var seasonStats = await _statsRepository.GetSeasonTeamsStatsAsync(year, season.SeasonId);
-                    teamsStats.AddRange(_mapper.Map<IEnumerable<TeamSeasonStats>>(seasonStats));
+                    teamsStats.AddRange(_mapper.Map<IEnumerable<TeamStats>>(seasonStats));
                 }
             }
             var stats = teamsStats.GroupBy(ts => ts.Id).Select(ts => ts.Aggregate((x, y) => x + y)); ;
             return stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF);
         }
 
-        public async Task<TeamSeasonStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName)
+        public async Task<TeamStats> AddTeamStatsAsync(int teamId, short year, byte season, string teamName)
         {
             var newStats = new DataRepository.DataEntities.TeamSeasonStats(year, season, teamId) {TeamName = teamName};
             await _statsRepository.AddAsync(newStats);
-            return _mapper.Map<TeamSeasonStats>(newStats);
+            return _mapper.Map<TeamStats>(newStats);
         }
 
-        public Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamSeasonStats> stats)
+        public Task BulkUpsertTeamStats(short year, byte season, IEnumerable<TeamStats> stats)
         {
             return _statsRepository.BatchUpsertAsync(
                 _mapper.Map<IEnumerable<DataRepository.DataEntities.TeamSeasonStats>>(stats, opt =>
@@ -137,10 +141,10 @@ namespace Futbol.Seasons.Services
             await _statsRepository.BatchDeleteAsync(stats);
         }
 
-        public async Task<TeamSeasonStats> GetTeamSeasonStatsAsync(int teamId, short year, byte season)
+        public async Task<TeamStats> GetTeamSeasonStatsAsync(int teamId, short year, byte season)
         {
             var stats = await _statsRepository.GetByKeyAsync(year, $"SeasonStats#{season}#{teamId}");
-            return _mapper.Map<TeamSeasonStats>(stats);
+            return _mapper.Map<TeamStats>(stats);
         }
 
         public async Task<bool> VerifyTeamSeasonStatsAsync(int teamId, short year, byte season)
@@ -208,7 +212,7 @@ namespace Futbol.Seasons.Services
             return _mapper.Map<IEnumerable<Match>>(matches.OrderBy(match => match.Round));
         }
 
-        public Task UpdateTeamStatsAsync(int teamId, short year, byte season, TeamSeasonStats stats)
+        public Task UpdateTeamStatsAsync(int teamId, short year, byte season, TeamStats stats)
         {
             return _statsRepository.UpdateAsync(_mapper.Map<DataRepository.DataEntities.TeamSeasonStats>(stats, opt =>
             {
@@ -288,5 +292,18 @@ namespace Futbol.Seasons.Services
 
             return true;
         }
+
+        public async Task<TeamConferenceStats> GetTeamConferenceStatsAsync(int teamId, short year, byte conference)
+        {
+            var stats = await _conferenceRepository.GetByKeyAsync(year, $"ConferenceStats#{conference}#{teamId}");
+            return _mapper.Map<TeamConferenceStats>(stats);
+        }
+
+        public async Task<IEnumerable<TeamConferenceStats>> GetConferenceTeamsStatsAsync(short year, byte conference)
+        {
+            var stats = await _conferenceRepository.GetConferenceTeamsStatsAsync(year, conference);
+            return _mapper.Map<IEnumerable<TeamConferenceStats>>(stats.OrderByDescending(s => s.Pts).ThenByDescending(s => s.GD).ThenByDescending(s => s.GF));
+        }
+
     }
 }

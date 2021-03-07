@@ -43,7 +43,7 @@ namespace Futbol.SeasonsAPI.Models
 
             #region TeamStats
 
-            CreateMap<TeamSeasonStats, TeamSeasonStatsModel>();
+            CreateMap<TeamStats, TeamSeasonStatsModel>();
 
             #endregion
 

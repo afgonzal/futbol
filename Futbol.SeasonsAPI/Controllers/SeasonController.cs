@@ -55,7 +55,7 @@ namespace Futbol.SeasonsAPI.Controllers
             try
             {
                 var stats = await _teamsService.GetSeasonTeamsStatsAsync(year, season);
-                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
+                return Ok(_mapper.Map<IEnumerable<TeamStats>>(stats));
             }
             catch (Exception ex)
             {

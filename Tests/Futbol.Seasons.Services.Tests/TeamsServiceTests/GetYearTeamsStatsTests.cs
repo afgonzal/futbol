@@ -39,7 +39,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             var result = await service.GetYearTeamsStatsAsync(Year);
 
             Assert.NotNull(result);
-            Assert.IsInstanceOf<IEnumerable<BusinessEntities.TeamSeasonStats>>(result);
+            Assert.IsInstanceOf<IEnumerable<BusinessEntities.TeamStats>>(result);
             Assert.True(result.Any());
             Assert.AreEqual(5, result.Count());
             Assert.AreEqual(6, result.First().Pts);

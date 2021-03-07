@@ -36,7 +36,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             var result = await service.GetTeamSeasonStatsAsync(TeamId, Year, Season);
 
             Assert.NotNull(result);
-            Assert.IsInstanceOf<BusinessEntities.TeamSeasonStats>(result);
+            Assert.IsInstanceOf<BusinessEntities.TeamStats>(result);
             
             _repository.Verify(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>()), Times.Once);
         }

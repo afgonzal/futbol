@@ -32,7 +32,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             var result = await service.AddTeamStatsAsync(13, 2020, 2, "DC");
 
             Assert.NotNull(result);
-            Assert.IsInstanceOf<BusinessEntities.TeamSeasonStats>(result);
+            Assert.IsInstanceOf<BusinessEntities.TeamStats>(result);
             Assert.AreEqual(13, result.Id);
             Assert.AreEqual("DC", result.Name);
 

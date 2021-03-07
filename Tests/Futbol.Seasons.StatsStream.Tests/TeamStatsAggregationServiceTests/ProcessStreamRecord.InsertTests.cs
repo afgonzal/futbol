@@ -26,7 +26,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 Times.Exactly(2));
             _teamsService.Verify(
                 x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(),
-                    It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+                    It.IsAny<TeamStats>()), Times.Exactly(2));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                 Times.Exactly(2));
             _teamsService.Verify(
                 x => x.UpdateTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(),
-                    It.IsAny<TeamSeasonStats>()), Times.Exactly(2));
+                    It.IsAny<TeamStats>()), Times.Exactly(2));
         }
     }
 }

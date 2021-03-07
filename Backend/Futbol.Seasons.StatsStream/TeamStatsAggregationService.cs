@@ -249,7 +249,7 @@ namespace Futbol.Seasons.StatsStream
         /// <param name="homeStats"></param>
         /// <param name="awayStats"></param>
         /// <returns></returns>
-        private void RemoveOldResult(DataRepository.DataEntities.Match oldResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
+        private void RemoveOldResult(DataRepository.DataEntities.Match oldResult, TeamStats homeStats, TeamStats awayStats)
         {
             var matchWinner = oldResult.HomeScore > oldResult.AwayScore ? WhoWon.Home :
                 oldResult.AwayScore > oldResult.HomeScore ? WhoWon.Away : WhoWon.Draw;
@@ -285,7 +285,7 @@ namespace Futbol.Seasons.StatsStream
         /// <param name="homeStats"></param>
         /// <param name="awayStats"></param>
         /// <returns></returns>
-        private void SetNewResult(DataRepository.DataEntities.Match newResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
+        private void SetNewResult(DataRepository.DataEntities.Match newResult, TeamStats homeStats, TeamStats awayStats)
         {
             var newMatchWinner = newResult.HomeScore > newResult.AwayScore ? WhoWon.Home :
                 newResult.AwayScore > newResult.HomeScore ? WhoWon.Away : WhoWon.Draw;
@@ -324,7 +324,7 @@ namespace Futbol.Seasons.StatsStream
         /// <param name="awayStats"></param>
         /// <returns></returns>
         private async Task<bool> ValidateMatchAsync(ILambdaLogger logger, DataRepository.DataEntities.Match oldResult,
-            DataRepository.DataEntities.Match newResult, TeamSeasonStats homeStats, TeamSeasonStats awayStats)
+            DataRepository.DataEntities.Match newResult, TeamStats homeStats, TeamStats awayStats)
         {
             if (oldResult.Year != newResult.Year || oldResult.Season != newResult.Season ||
                 oldResult.Round != newResult.Round)
