@@ -1,5 +1,15 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 body {
-  background-position: top;
-  background-repeat: no-repeat;
-  background-image: url("assets/img/SPF_transp.jpg");
+  //background-position: top;
+  //background-position-y: 80px;
+  //background-size: contain;
+  //background-repeat: no-repeat;
+  //background-image: url("assets/img/SPF_transp.jpg");
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  height: 100%;
 }
+
+html {  height: 100%;}
+

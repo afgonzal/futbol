@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
+import { SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 @Component({
   selector: 'app-login',
@@ -9,7 +9,7 @@ import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
 })
 export class LoginComponent implements OnInit {
 
-  constructor( private authService: AuthService,
+  constructor( private authService: SocialAuthService,
     private activated: ActivatedRoute,
     private router: Router) { }
 
