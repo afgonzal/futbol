@@ -20,6 +20,7 @@ namespace Futbol.Seasons.Services
         Task SetRoundResults(short year, byte season, byte round, IList<Match> matchesResults);
         Task ResetAllMatchesFromSeasonAsync(short year, byte season);
         Task MoveRoundAsync(short year, byte season, byte round, DateTimeOffset newDate, bool keepTimes);
+        Task<CurrentSeasonConfig> GetCurrentSeason(short year);
     }
 
     public class MatchesService : IMatchesService
@@ -27,12 +28,15 @@ namespace Futbol.Seasons.Services
         private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
         private readonly ISeasonConfigService _seasonService;
+        private readonly ICurrentSeasonConfigRepository _currentSeasonRepository;
 
-        public MatchesService(IMatchRepository matchRepository, ISeasonConfigService seasonService, IMapper mapper)
+        public MatchesService(IMatchRepository matchRepository, ISeasonConfigService seasonService,
+            ICurrentSeasonConfigRepository currentSeasonRepository, IMapper mapper)
         {
             _matchRepository = matchRepository;
             _mapper = mapper;
             _seasonService = seasonService;
+            _currentSeasonRepository = currentSeasonRepository;
         }
 
         public async Task AddMatch(Match newMatch)
@@ -134,6 +138,12 @@ namespace Futbol.Seasons.Services
             }
 
             await _matchRepository.BatchUpsertAsync(matches);
+        }
+
+        public async Task<CurrentSeasonConfig> GetCurrentSeason(short year)
+        {
+            var result = await _currentSeasonRepository.GetCurrentSeason(year);
+            return _mapper.Map<CurrentSeasonConfig>(result);
         }
     }
 }

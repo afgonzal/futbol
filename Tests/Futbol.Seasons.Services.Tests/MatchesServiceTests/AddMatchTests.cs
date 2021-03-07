@@ -27,7 +27,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new MatchesService(_repository.Object, null, _mapper);
+            var service = new MatchesService(_repository.Object, null, null, _mapper);
             await service.AddMatch(MockedMatch());
             _repository.Verify(x => x.AddAsync(It.IsAny<DataRepository.DataEntities.Match>()),Times.Once);
         }
@@ -37,7 +37,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.AddAsync(It.IsAny<DataRepository.DataEntities.Match>())).ThrowsAsync(new DataException());
 
-            var service = new MatchesService(_repository.Object, null, _mapper);
+            var service = new MatchesService(_repository.Object, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.AddMatch(MockedMatch()));
 
             _repository.Verify(x => x.AddAsync(It.IsAny<DataRepository.DataEntities.Match>()), Times.Once);

@@ -38,7 +38,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ReturnsAsync(MockedMatches().ToList());
             
-            var service = new MatchesService(_repository.Object, _configService.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _configService.Object, null, _mapper);
             await service.ResetAllMatchesFromSeasonAsync(Year, Season);
 
 
@@ -52,7 +52,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
 
-            var service = new MatchesService(_repository.Object, _configService.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _configService.Object, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.ResetAllMatchesFromSeasonAsync(Year, Season));
 
             _repository.Verify(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Once);
@@ -66,7 +66,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ReturnsAsync(MockedMatches().ToList());
             _repository.Setup(x => x.BatchUpsertAsync(It.IsAny<IEnumerable<DataRepository.DataEntities.Match>>())).ThrowsAsync(new DataException());
 
-            var service = new MatchesService(_repository.Object, _configService.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _configService.Object, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.ResetAllMatchesFromSeasonAsync(Year, Season));
 
             _repository.Verify(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Once);
@@ -81,7 +81,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
             _configService.Setup(x => x.GetConfig(It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync((SeasonConfig) null);
 
-            var service = new MatchesService(_repository.Object, _configService.Object, _mapper);
+            var service = new MatchesService(_repository.Object, _configService.Object, null, _mapper);
             Assert.ThrowsAsync<ArgumentException>(async () => await service.ResetAllMatchesFromSeasonAsync(Year, Season));
 
             _repository.Verify(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Never);

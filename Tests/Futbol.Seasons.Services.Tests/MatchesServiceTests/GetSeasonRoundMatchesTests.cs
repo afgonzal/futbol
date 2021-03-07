@@ -33,7 +33,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         public async Task Ok_Success()
         {
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ReturnsAsync(MockedMatches().ToList());
-            var service = new MatchesService(_repository.Object, null, _mapper);
+            var service = new MatchesService(_repository.Object, null, null, _mapper);
             var result = await service.GetSeasonRoundMatchesAsync(Year, Season, Round);
 
             Assert.NotNull(result);
@@ -47,7 +47,7 @@ namespace Futbol.Seasons.Services.Tests.MatchesServiceTests
         {
             _repository.Setup(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
 
-            var service = new MatchesService(_repository.Object, null, _mapper);
+            var service = new MatchesService(_repository.Object, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetSeasonRoundMatchesAsync(Year, Season, Round));
 
             _repository.Verify(x => x.GetMatchesAsync(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<byte>()), Times.Once);

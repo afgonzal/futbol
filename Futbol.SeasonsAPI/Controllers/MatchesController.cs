@@ -6,13 +6,14 @@ using AutoMapper;
 using Futbol.Seasons.BusinessEntities;
 using Futbol.Seasons.Services;
 using Futbol.SeasonsAPI.Models;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Futbol.SeasonsAPI.Controllers
 {
-    [Route("api/matches/{year:int}/{season:int}")]
+    [Route("api/matches/{year:int}")]
     public class MatchesController : ControllerBase
     {
         private readonly IMatchesService _matchesService;
@@ -27,7 +28,7 @@ namespace Futbol.SeasonsAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{round:int}")]
+        [HttpGet("{season:int}/{round:int}")]
         public async Task<IActionResult> GetSeasonRoundMatchesAsync([FromRoute] short year, [FromRoute] byte season,
             [FromRoute] byte round)
         {
@@ -43,7 +44,7 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
-        [HttpPost("batchFixture")]
+        [HttpPost("{season:int}/batchFixture")]
         public async Task<IActionResult> BulkAddFixture([FromRoute] short year, [FromRoute] byte season,
             [FromBody] IList<IList<MatchAddRequest>> newMatches, [FromQuery]byte startingFromRound = 1)
         {
@@ -94,7 +95,7 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
-        [HttpPost("{round:int}")]
+        [HttpPost("{season:int}/{round:int}")]
         public async Task<IActionResult> SetRoundResults([FromRoute] short year, [FromRoute] byte season,[FromRoute]byte round,
            [FromBody] IList<MatchResultRequest> matchesResults)
         {
@@ -137,7 +138,7 @@ namespace Futbol.SeasonsAPI.Controllers
             }
         }
 
-        [HttpPost("{round:int}/moveDate")]
+        [HttpPost("{season:int}/{round:int}/moveDate")]
         public async Task<IActionResult> MoveRoundDate([FromRoute] short year, [FromRoute] byte season,
             [FromRoute] byte round, [FromQuery] DateTimeOffset newDate, [FromQuery]bool keepTimes)
         {
@@ -145,6 +146,14 @@ namespace Futbol.SeasonsAPI.Controllers
                 newDate = newDate.Date;
             await _matchesService.MoveRoundAsync(year, season, round, newDate, keepTimes);
             return Ok();
+        }
+
+        [HttpGet("next")]
+        public async Task<IActionResult> GetNextRound([FromRoute] short year)
+        {
+            var currentSeason = await _matchesService.GetCurrentSeason(year);
+
+            return await GetSeasonRoundMatchesAsync(currentSeason.Year, currentSeason.Season, currentSeason.NextRound);
         }
 
     }

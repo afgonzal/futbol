@@ -14,6 +14,7 @@ namespace Futbol.Seasons.DataRepository
             services.AddScoped<IMatchRepository, MatchRepository>();
             services.AddScoped<ISeasonConfigRepository, SeasonConfigRepository>();
             services.AddScoped<IChampionshipConfigRepository, ChampionshipConfigRepository>();
+            services.AddScoped<ICurrentSeasonConfigRepository, CurrentSeasonConfigRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPartnerRepository, PartnerRepository>();
 
