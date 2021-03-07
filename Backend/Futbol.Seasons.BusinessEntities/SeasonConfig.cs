@@ -28,6 +28,6 @@ namespace Futbol.Seasons.BusinessEntities
         public short Year { get; set; }
         public byte Season { get; set; }
         public byte? LastRound { get; set; }
-        public byte NextRound { get; set; }
+        public byte? NextRound { get; set; }
     }
 }

@@ -152,8 +152,9 @@ namespace Futbol.SeasonsAPI.Controllers
         public async Task<IActionResult> GetNextRound([FromRoute] short year)
         {
             var currentSeason = await _matchesService.GetCurrentSeason(year);
-
-            return await GetSeasonRoundMatchesAsync(currentSeason.Year, currentSeason.Season, currentSeason.NextRound);
+            if (currentSeason.NextRound.HasValue)
+                return await GetSeasonRoundMatchesAsync(currentSeason.Year, currentSeason.Season, currentSeason.NextRound.Value);
+            return NotFound();
         }
 
     }

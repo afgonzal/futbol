@@ -23,7 +23,7 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public byte? LastRound { get; set; }
 
         [DynamoDBProperty]
-        public byte NextRound { get; set; }
+        public byte? NextRound { get; set; }
 
     }
 }

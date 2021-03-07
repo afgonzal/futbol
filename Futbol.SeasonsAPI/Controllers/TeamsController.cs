@@ -74,20 +74,7 @@ namespace Futbol.SeasonsAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error adding teams.");
             }
         }
-        [HttpGet("stats/{year:int}/{season:int}")]
-        public async Task<IActionResult> GetSeasonTeamsStats([FromRoute]short year, [FromRoute]byte season)
-        {
-            try
-            {
-                var stats = await _teamsService.GetSeasonTeamsStatsAsync(year, season);
-                return Ok(_mapper.Map<IEnumerable<TeamSeasonStats>>(stats));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error getting teams stats {year}#{season}.", ex);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error getting team stats.");
-            }
-        }
+       
 
         [HttpGet("stats/{year:int}")]
         public async Task<IActionResult> GetYearTeamsStats([FromRoute] short year)
