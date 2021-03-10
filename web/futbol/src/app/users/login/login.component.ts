@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
+import { SpfAuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,15 +10,29 @@ import { SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
 })
 export class LoginComponent implements OnInit {
 
-  constructor( private authService: SocialAuthService,
+  isLoading: boolean = false;
+  constructor( private authService: SocialAuthService, private userService: SpfAuthService,
     private activated: ActivatedRoute,
     private router: Router) { }
 
   ngOnInit(): void {
   }
 
-  logInWithGoogle() {
-    this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
+  googleLogin() : void {
+    this.isLoading = true;
+    this.authService.signIn(GoogleLoginProvider.PROVIDER_ID).then((response) => {
+      debugger;
+      this.userService.login({
+        userId: response.id,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        email: response.email,
+        pictureUrl: response.photoUrl,
+        idToken: response.idToken
+      });
+    }).finally(() => {
+      this.isLoading = false;
+    });
   }
 
 }

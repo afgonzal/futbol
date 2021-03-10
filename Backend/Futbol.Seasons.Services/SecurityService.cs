@@ -33,15 +33,14 @@ namespace Futbol.Seasons.Services
             var configuration = _config.GetSection("SPF").GetSection("Futbol");
 
 
+            var claims = user.Roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())).ToList();
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Email));
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Role, user.Role.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.Email),
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["TokenSecret"])),
@@ -100,7 +99,7 @@ namespace Futbol.Seasons.Services
             var claim = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
             if (claim == null)
                 return false;
-            if (claim.Value == UserRole.Admin.ToString() || claim.Value == UserRole.SetResults.ToString())
+            if (claim.Value == UserRole.Admin.ToString() || claim.Value == UserRole.Contributor.ToString())
                 return true;
             return false;
         }

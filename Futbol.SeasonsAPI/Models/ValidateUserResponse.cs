@@ -1,4 +1,5 @@
-﻿using Futbol.Seasons.BusinessEntities;
+﻿using System.Collections.Generic;
+using Futbol.Seasons.BusinessEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -9,6 +10,6 @@ namespace Futbol.SeasonsAPI.Models
         public bool IsAuthorized { get; set; }
         public string Token { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public UserRole Role { get; set; }
+        public IEnumerable<UserRole> Roles { get; set; }
     }
 }

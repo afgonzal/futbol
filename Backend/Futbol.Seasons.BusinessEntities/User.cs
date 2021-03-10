@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace Futbol.Seasons.BusinessEntities
 {
     public class User
@@ -7,11 +9,11 @@ namespace Futbol.Seasons.BusinessEntities
 
         public bool IsEnabled { get; set; }
 
-        public UserRole Role { get; set; }
+        public IEnumerable<UserRole> Roles { get; set; }
     }
 
     public enum UserRole
     {
-        Admin, SetResults, ReadOnly
+        Admin, Contributor, Editor, MatchEditor, Manager, Player, Social
     }
 }

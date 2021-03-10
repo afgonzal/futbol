@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using System.Collections.Generic;
+using Amazon.DynamoDBv2.DataModel;
 
 namespace Futbol.Seasons.DataRepository.DataEntities
 {
@@ -8,12 +9,22 @@ namespace Futbol.Seasons.DataRepository.DataEntities
         public const string UserSk = "Security";
         [DynamoDBHashKey] public string Email{ get; set; }
 
-        [DynamoDBRangeKey] public string Sk => UserSk;
+        [DynamoDBRangeKey] public string Sk
+        {
+            get
+            {
+                return UserSk;
+            }
+            set
+            {
+
+            }
+        }
 
         [DynamoDBProperty]
         public bool IsEnabled { get; set; }
 
         [DynamoDBProperty]
-        public string Role { get; set; }
+        public List<string> Roles { get; set; }
     }
 }

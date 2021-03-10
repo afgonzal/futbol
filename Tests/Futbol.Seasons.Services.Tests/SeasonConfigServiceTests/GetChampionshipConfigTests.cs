@@ -32,7 +32,7 @@ namespace Futbol.Seasons.Services.Tests.SeasonConfigServiceTests
         {
             _repository.Setup(x => x.GetYearConfig(It.IsAny<short>())).ReturnsAsync(MockedConfig());
 
-            var service = new SeasonConfigService(_repository.Object,null, _mapper);
+            var service = new SeasonConfigService(_repository.Object,null, null, _mapper);
             var result = await service.GetConfig(Year);
 
             Assert.NotNull(result);
@@ -49,7 +49,7 @@ namespace Futbol.Seasons.Services.Tests.SeasonConfigServiceTests
             _repository.Setup(x => x.GetYearConfig(It.IsAny<short>()))
                 .ThrowsAsync(new DataException());
 
-            var service = new SeasonConfigService(_repository.Object, null,_mapper);
+            var service = new SeasonConfigService(_repository.Object, null,null,_mapper);
             Assert.ThrowsAsync<DataException>(async () =>await service.GetConfig(Year));
 
             _repository.Verify(x => x.GetYearConfig(It.IsAny<short>()), Times.Once);

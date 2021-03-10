@@ -1,2 +1,20 @@
-<p>login works!</p>
-<button type="button" (click)="logInWithGoogle()" >Google Login </button>
+<div class="login">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <div mat-card-avatar>
+        <img src="assets/img/google_cloud_identity_logo.png" class="mat-card-avatar">
+      </div>
+      <mat-card-title>Ingresar con credenciales de Google</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button color="primary" (click)="googleLogin()">Login</button>
+      <button mat-button>Cancel</button>
+    </mat-card-actions>
+    <mat-card-footer *ngIf="isLoading">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </mat-card-footer>
+  </mat-card>
+</div>
