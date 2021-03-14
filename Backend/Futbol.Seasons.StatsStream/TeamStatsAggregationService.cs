@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,18 +21,34 @@ namespace Futbol.Seasons.StatsStream
     public class TeamsStatsAggregationService : ITeamsStatsAggregationService
     {
         private readonly ITeamsService _teamsService;
-        private readonly IMatchesService _matchesService;
 
 
-        public TeamsStatsAggregationService(ITeamsService teamsService, IMatchesService matchesService)
+        public TeamsStatsAggregationService(ITeamsService teamsService)
         {
             _teamsService = teamsService;
-            _matchesService = matchesService;
         }
 
         private short? _year;
         private byte? _season;
 
+
+        private async Task<byte[]> GetMatchTeamsConference(int homeTeamId, int awayTeamId)
+        {
+            if (!_year.HasValue)
+            {
+                throw new InvalidOperationException("Year yet not set, unable to get teams.");
+            }
+
+            if (!_teamsConference.Any())
+            {
+                var teams = await _teamsService.GetYearTeamsAsync(_year.Value);
+                _teamsConference = teams.ToDictionary(t => t.Id, t => t.ConferenceId);
+            }
+
+            return new byte[] {_teamsConference[homeTeamId], _teamsConference[awayTeamId]};
+        }
+        
+        private IDictionary<int, byte> _teamsConference;
         private void SetYearSeason(short year, byte season)
         {
             if (!_year.HasValue)
@@ -85,29 +102,70 @@ namespace Futbol.Seasons.StatsStream
             {
                 context.Logger.LogLine($"Set new result {newResult.MatchId}.");
                 SetNewResult(newResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
-                    homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
-                    awayStats);
+                await _teamsService.BulkUpsertTeamStats(newResult.Year, newResult.Season,
+                    new TeamStats[] { homeStats, awayStats });
+              
+                var getConferences = await GetMatchTeamsConference(newResult.HomeTeamId, newResult.AwayTeamId);
+                if (getConferences[0] == getConferences[1])
+                {
+                    //teams in same conference, update conf stats
+                    var homeConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.HomeTeamId, newResult.Year,
+                            getConferences[0]);
+                    var awayConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.AwayTeamId, newResult.Year,
+                            getConferences[1]);
+                    SetNewResult(newResult, homeConfStats, awayConfStats);
+                    await _teamsService.BulkUpsertTeamConferenceStats(newResult.Year, getConferences[0],
+                        new TeamConferenceStats[] { homeConfStats, awayConfStats });
+                }
             }
             else if (oldResult.WasPlayed && newResult.WasPlayed) //first remove points then add
             {
                 context.Logger.LogLine($"Replace result {newResult.MatchId}.");
                 RemoveOldResult(oldResult, homeStats, awayStats);
                 SetNewResult(newResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
-                    homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
-                    awayStats);
+
+                await _teamsService.BulkUpsertTeamStats(newResult.Year, newResult.Season,
+                    new TeamStats[] { homeStats, awayStats });
+
+                var getConferences = await GetMatchTeamsConference(newResult.HomeTeamId, newResult.AwayTeamId);
+                if (getConferences[0] == getConferences[1])
+                {
+                    //teams in same conference, update conf stats
+                    var homeConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.HomeTeamId, newResult.Year,
+                            getConferences[0]);
+                    var awayConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.AwayTeamId, newResult.Year,
+                            getConferences[1]);
+                    RemoveOldResult(oldResult, homeStats, awayStats);
+                    SetNewResult(newResult, homeConfStats, awayConfStats);
+                    await _teamsService.BulkUpsertTeamConferenceStats(newResult.Year, getConferences[0],
+                        new TeamConferenceStats[] { homeConfStats, awayConfStats });
+                }
             }
             else if (oldResult.WasPlayed && !newResult.WasPlayed) //remove points
             {
                 context.Logger.LogLine($"Remove result {newResult.MatchId}.");
                 RemoveOldResult(oldResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
-                    homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
-                    awayStats);
+                await _teamsService.BulkUpsertTeamStats(newResult.Year, newResult.Season,
+                    new TeamStats[] { homeStats, awayStats });
+
+                var getConferences = await GetMatchTeamsConference(newResult.HomeTeamId, newResult.AwayTeamId);
+                if (getConferences[0] == getConferences[1])
+                {
+                    //teams in same conference, update conf stats
+                    var homeConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.HomeTeamId, newResult.Year,
+                            getConferences[0]);
+                    var awayConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.AwayTeamId, newResult.Year,
+                            getConferences[1]);
+                    RemoveOldResult(oldResult, homeStats, awayStats);
+                    await _teamsService.BulkUpsertTeamConferenceStats(newResult.Year, getConferences[0],
+                        new TeamConferenceStats[] { homeConfStats, awayConfStats });
+                }
             }
             else //do nothing, no change
             {
@@ -158,10 +216,24 @@ namespace Futbol.Seasons.StatsStream
 
                 context.Logger.LogLine($"Set new result {newResult.MatchId}.");
                 SetNewResult(newResult, homeStats, awayStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.HomeTeamId, newResult.Year, newResult.Season,
-                    homeStats);
-                await _teamsService.UpdateTeamStatsAsync(newResult.AwayTeamId, newResult.Year, newResult.Season,
-                    awayStats);
+                await _teamsService.BulkUpsertTeamStats(newResult.Year, newResult.Season,
+                    new TeamStats[] {homeStats, awayStats});
+
+                var getConferences = await GetMatchTeamsConference(newResult.HomeTeamId, newResult.AwayTeamId);
+                if (getConferences[0] == getConferences[1])
+                { 
+                    //teams in same conference, update conf stats
+                    var homeConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.HomeTeamId, newResult.Year,
+                            getConferences[0]);
+                    var awayConfStats =
+                        await _teamsService.GetTeamConferenceStatsAsync(newResult.AwayTeamId, newResult.Year,
+                            getConferences[1]);
+                    SetNewResult(newResult, homeConfStats, awayConfStats);
+                    await _teamsService.BulkUpsertTeamConferenceStats(newResult.Year, getConferences[0],
+                        new TeamConferenceStats[] {homeConfStats, awayConfStats});
+                }
+
             }
         }
 

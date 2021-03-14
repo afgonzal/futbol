@@ -41,7 +41,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1, true), NewMatch(2, 3)), _context.Object);
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
@@ -57,7 +57,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1, true), NewMatch(2, 3, false)),
                 _context.Object);
 
@@ -74,7 +74,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object);
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
@@ -90,7 +90,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(NewMatch(2, 1, false), NewMatch(2,1, false)), _context.Object);
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
@@ -106,7 +106,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(4, 3)), _context.Object);
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
@@ -122,7 +122,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 2)), _context.Object);
 
             _logger.Verify(x => x.LogLine(It.IsAny<string>()), Times.Exactly(4));
@@ -140,7 +140,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ThrowsAsync(new DataException());
 
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             Assert.ThrowsAsync<DataException>(async () =>
                 await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
 
@@ -161,7 +161,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                     x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
                 .ThrowsAsync(new DataException());
 
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             Assert.ThrowsAsync<DataException>(async () =>
                 await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
 
@@ -183,7 +183,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
                     x.AddTeamStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<string>()))
                 .ThrowsAsync(new DataException());
 
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             Assert.ThrowsAsync<DataException>(async () =>
                 await service.ProcessStreamRecordAsync(MockedRecord(OldMatch(2, 1), NewMatch(2, 3)), _context.Object));
 

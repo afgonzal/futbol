@@ -30,7 +30,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         [Test]
         public async Task Ok_Success()
         {
-            var service = new TeamsService(null, null, null,_repository.Object, null, null, _mapper);
+            var service = new TeamsService(null, null, null,_repository.Object, null, null, null, _mapper);
             await service.UpdateTeamStatsAsync(TeamId, Year, Season, MockStats());
 
 
@@ -44,7 +44,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, null, null,_repository.Object, null, null,  _mapper);
+            var service = new TeamsService(null, null, null,_repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.UpdateTeamStatsAsync(TeamId, Year, Season, MockStats() ));
 
             _repository.Verify(x => x.UpdateAsync(It.IsAny<DataRepository.DataEntities.TeamSeasonStats>()), Times.Once);

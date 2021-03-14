@@ -13,7 +13,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             var record = MockedRecord(null, NewMatch(2, 3));
             record.EventName = OperationType.INSERT;
             await service.ProcessStreamRecordAsync(record, _context.Object);
@@ -34,7 +34,7 @@ namespace Futbol.Seasons.StatsStream.Tests.TeamStatsAggregationServiceTests
         {
             _teamsService.Setup(x => x.GetTeamSeasonStatsAsync(It.IsAny<int>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .ReturnsAsync(MockedStats());
-            var service = new TeamsStatsAggregationService(_teamsService.Object, _matchesService.Object);
+            var service = new TeamsStatsAggregationService(_teamsService.Object);
             var record = MockedRecord(OldMatch(2, 3, true), null);
             record.EventName = OperationType.REMOVE;
             await service.ProcessStreamRecordAsync(record, _context.Object);

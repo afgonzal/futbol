@@ -37,6 +37,7 @@ namespace Futbol.Seasons.Services
         Task<IEnumerable<TeamConferenceStats>> GetConferenceTeamsStatsAsync(short year, byte conference);
 
         Task ReprocessConferencesStatsAsync(short year);
+        Task BulkUpsertTeamConferenceStats(short year, byte conference, IEnumerable<TeamConferenceStats> stats);
     }
 
     public class TeamsService : ITeamsService

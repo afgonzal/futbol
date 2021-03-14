@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +28,14 @@ namespace Futbol.SeasonsAPI
         {
             services.AddAutoMapper(typeof(ModelMappingProfile), typeof(Seasons.Services.EntitiesMappingProfile));
             Seasons.Services.Startup.ConfigureServices(services, Configuration);
+
+            var urls = Configuration.GetSection("CORSUrl").GetChildren().Select(url => url.Value).ToArray();
+            services.AddCors(c =>
+            {
+                c.AddPolicy("CorsPolicy", options => options.WithOrigins(urls).AllowAnyHeader()
+                    .AllowAnyMethod().AllowCredentials());
+            });
+
 
             services.AddControllers();
 
@@ -59,7 +68,7 @@ namespace Futbol.SeasonsAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();

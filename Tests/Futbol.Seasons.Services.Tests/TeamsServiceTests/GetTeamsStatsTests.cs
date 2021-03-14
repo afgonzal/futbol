@@ -32,7 +32,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         public async Task Ok_Success()
         {
             _repository.Setup(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>())).ReturnsAsync(MockedStats());
-            var service = new TeamsService(null, null, null, _repository.Object, null, null,  _mapper);
+            var service = new TeamsService(null, null, null, _repository.Object, null, null, null, _mapper);
             var result = await service.GetTeamSeasonStatsAsync(TeamId, Year, Season);
 
             Assert.NotNull(result);
@@ -46,7 +46,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.Setup(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, null, null, _repository.Object, null, null,  _mapper);
+            var service = new TeamsService(null, null, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetTeamSeasonStatsAsync(TeamId, Year, Season));
 
             _repository.Verify(x => x.GetByKeyAsync(It.IsAny<short>(), It.IsAny<string>()), Times.Once);
@@ -56,7 +56,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             return new TeamSeasonStats(Year, Season, TeamId)
             {
-                TeamName = $"team", ConferenceId = 0, G = 5,W = (byte)3, L = (byte)5, GF = (byte)10, GA = (byte)2
+                TeamName = $"team",  G = 5,W = (byte)3, L = (byte)5, GF = (byte)10, GA = (byte)2
             };
         }
     }

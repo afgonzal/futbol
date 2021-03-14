@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 4500",
+    "startssl": "ng serve --ssl --sslcert ssl/alecert.cer --port 4501",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",

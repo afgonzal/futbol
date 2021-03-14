@@ -35,7 +35,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             _repository.SetupSequence(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedStats(1).ToList()).ReturnsAsync(MockedStats(2).ToList());
             _seasonService.Setup(x => x.GetConfig(It.IsAny<short>())).ReturnsAsync(MockedConfig());
-            var service = new TeamsService(null, _seasonService.Object, null, _repository.Object, null, null,  _mapper);
+            var service = new TeamsService(null, _seasonService.Object, null, _repository.Object, null, null, null, _mapper);
             var result = await service.GetYearTeamsStatsAsync(Year);
 
             Assert.NotNull(result);
@@ -56,7 +56,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
             _seasonService.Setup(x => x.GetConfig(It.IsAny<short>())).ReturnsAsync(MockedConfig());
             _repository.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
 
-            var service = new TeamsService(null, _seasonService.Object, null, _repository.Object, null, null,  _mapper);
+            var service = new TeamsService(null, _seasonService.Object, null, _repository.Object, null, null, null, _mapper);
             Assert.ThrowsAsync<DataException>(async () => await service.GetYearTeamsStatsAsync(Year));
 
             _seasonService.Verify(x => x.GetConfig(It.IsAny<short>()), Times.Once);
@@ -67,7 +67,7 @@ namespace Futbol.Seasons.Services.Tests.TeamsServiceTests
         {
             return Enumerable.Range(1,5).Select(tId => new DataRepository.DataEntities.TeamSeasonStats(Year, season, tId)
             {
-                TeamName = $"team{tId}", ConferenceId = 0, G = 5,W = (byte)tId, L = (byte)(5-tId), GF = (byte)tId, GA = (byte)tId
+                TeamName = $"team{tId}", G = 5,W = (byte)tId, L = (byte)(5-tId), GF = (byte)tId, GA = (byte)tId
             });
         }
 

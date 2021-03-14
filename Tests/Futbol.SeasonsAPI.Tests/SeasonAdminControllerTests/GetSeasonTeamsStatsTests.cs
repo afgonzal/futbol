@@ -14,14 +14,14 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
+namespace Futbol.SeasonsAPI.Tests.SeasonAdminControllerTests
 {
     [TestFixture]
     public class GetSeasonTeamsStatsTests
     {
         private Mock<ITeamsService> _service;
         private IMapper _mapper;
-        private Mock<ILogger<TeamsController>> _logger;
+        private Mock<ILogger<SeasonController>> _logger;
         private const short Year = 2020;
         private const byte Season = 2;
         [SetUp]
@@ -33,7 +33,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
                 cfg.AddProfile(new ModelMappingProfile());
             });
             _mapper = mockMapper.CreateMapper();
-            _logger = new Mock<ILogger<TeamsController>>();
+            _logger = new Mock<ILogger<SeasonController>>();
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         {
             _service.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ReturnsAsync(MockedStats());
 
-            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
+            var controller = new SeasonController(null, null, _service.Object, _mapper, _logger.Object);
             var result = await controller.GetSeasonTeamsStats(Year, Season);
 
             Assert.IsNotNull(result);
@@ -60,7 +60,7 @@ namespace Futbol.SeasonsAPI.Tests.TeamsControllerTests
         public async Task ServiceFail_Return500()
         {
             _service.Setup(x => x.GetSeasonTeamsStatsAsync(It.IsAny<short>(), It.IsAny<byte>())).ThrowsAsync(new DataException());
-            var controller = new TeamsController(_service.Object, _mapper, _logger.Object);
+            var controller = new SeasonController(null, null, _service.Object, _mapper, _logger.Object);
             var result = await controller.GetSeasonTeamsStats(Year, Season);
 
             Assert.IsNotNull(result);
